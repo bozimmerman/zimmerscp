@@ -3,9 +3,14 @@ package com.planet_ink.zimmerscp;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Properties;
+import java.util.Vector;
 
 import javax.swing.*;
+import javax.swing.event.ListDataEvent;
+import javax.swing.event.ListDataListener;
 import javax.swing.tree.TreePath;
 
 public class zimmerscp extends javax.swing.JFrame implements MouseListener, WindowListener
@@ -21,6 +26,9 @@ public class zimmerscp extends javax.swing.JFrame implements MouseListener, Wind
 	private JLabel jTreeTextD1;
 	private JLabel jTreeTextD2;
 	private JSplitPane jSplitPane2;
+	private JSplitPane jSplitPane0;
+	private JTextField jSettingsTextField = null;
+	private List<Properties> allSettings=new Vector<Properties>();
 
 	public static zimmerscp INSTANCE;
 
@@ -66,18 +74,31 @@ public class zimmerscp extends javax.swing.JFrame implements MouseListener, Wind
 			}
 		}.initMe(this));
 	}
+	
+	private Properties findPropsByName(String name)
+	{
+		for(int i=0;i<allSettings.size();i++)
+		{
+			Properties p=allSettings.get(i);
+			String n=p.getProperty("name");
+			if(n.trim().equalsIgnoreCase(name.trim()))
+				return p;
+		}
+		return null;
+	}
 
 	private void initGUI()
 	{
 		try
 		{
+			final JFrame me = this;
 			this.setTitle("ZimmerSCP v"+VERSION);
 			this.addWindowListener(this);
 			{
 				FileNode jTreeModelS = new FileNode(null);
 				jTreeS = new SourceTree("jTreeModelS", this, jTreeModelS);
 				jTreeModelS.setTree(jTreeS);
-				jTreeS.setMinimumSize(new java.awt.Dimension(DEFAULT_COL_WIDTH, 500));
+				jTreeS.setMinimumSize(new java.awt.Dimension(DEFAULT_COL_WIDTH, 400));
 				jTreeS.addMouseListener(this);
 				jTreeTextS = new JLabel("Local: <Click Here>");
 				jTreeTextS.setOpaque(true);
@@ -86,11 +107,99 @@ public class zimmerscp extends javax.swing.JFrame implements MouseListener, Wind
 				jTreeTextS.setMinimumSize(new java.awt.Dimension(DEFAULT_COL_WIDTH, 11));
 				JPanel jTreePanelS = new JPanel();
 				jTreePanelS.setLayout(new BorderLayout());
-				jTreePanelS.setMinimumSize(new java.awt.Dimension(DEFAULT_COL_WIDTH, 500));
+				jTreePanelS.setMinimumSize(new java.awt.Dimension(DEFAULT_COL_WIDTH, 400));
 				jTreePanelS.add(jTreeTextS, BorderLayout.NORTH);
 				JScrollPane jScrollTreeS = new JScrollPane(jTreeS);
-				jScrollTreeS.setMinimumSize(new java.awt.Dimension(DEFAULT_COL_WIDTH, 500));
+				jScrollTreeS.setMinimumSize(new java.awt.Dimension(DEFAULT_COL_WIDTH, 400));
 				jTreePanelS.add(jScrollTreeS, BorderLayout.CENTER);
+				
+				JPanel jSettingsPanel = new JPanel();
+				jSettingsPanel.setMinimumSize(new java.awt.Dimension(DEFAULT_COL_WIDTH, 100));
+				jSettingsPanel.setSize(new java.awt.Dimension(DEFAULT_COL_WIDTH, 100));
+				final JComboBox jSettingsListBox = new JComboBox();
+				jSettingsListBox.setPreferredSize(new Dimension(DEFAULT_COL_WIDTH-40, 20));
+				final List<ListDataListener> listener=new LinkedList<ListDataListener>();
+				jSettingsListBox.setModel(new ComboBoxModel(){
+					private Object selectedOne = null;
+					@Override public int getSize() { return allSettings.size(); }
+					@Override public Object getElementAt(int index) {
+						if((index<0)||(index>=allSettings.size())) return null;
+						Properties P=allSettings.get(index);
+						return P.containsKey("name")?P.get("name"):"Unknown?!";
+					}
+					@Override public void addListDataListener(ListDataListener l) { listener.add(l); }
+					@Override public void removeListDataListener(ListDataListener l) { listener.remove(l); }
+					@Override public void setSelectedItem(Object anItem) { selectedOne = anItem; }
+					@Override public Object getSelectedItem() { return selectedOne; }
+				});
+				jSettingsTextField = new JTextField();
+				jSettingsTextField.setColumns(20);
+				jSettingsTextField.setEditable(true);
+				JButton jLoadButton = new JButton("Load");
+				jLoadButton.addActionListener(new ActionListener(){
+					@Override public void actionPerformed(ActionEvent e) {
+						Properties p= null;
+						String propName=(String)jSettingsListBox.getSelectedItem();
+						if(propName!=null)
+							p=findPropsByName(propName);
+						if(p==null)
+							JOptionPane.showMessageDialog(me,"Select a setting first!");
+						else
+						{
+							if(p.containsKey("name"))
+								jSettingsTextField.setText(p.getProperty("name"));
+							else
+								jSettingsTextField.setText("default");
+							jTreeS.loadSettings(me, jTreeTextS, p);
+							jTreeD1.loadSettings(me, jTreeTextD1, p);
+							jTreeD2.loadSettings(me, jTreeTextD2, p);
+						}
+					}
+				});
+				JButton jAddButton = new JButton("Add"); 
+				jAddButton.addActionListener(new ActionListener(){
+					@Override public void actionPerformed(ActionEvent e) {
+						Properties p=findPropsByName(jSettingsTextField.getText());
+						if((p!=null)
+						&&(JOptionPane.showConfirmDialog(me, "Update setting '"+p.getProperty("name")+"'???") == JOptionPane.OK_OPTION))
+							return;
+						if(p!=null)
+							allSettings.remove(p);
+						p = new Properties();
+						p.setProperty("name", jSettingsTextField.getText());
+						jTreeS.saveSettings(p);
+						jTreeD1.saveSettings(p);
+						jTreeD2.saveSettings(p);
+						allSettings.add(p);
+						for(ListDataListener l : listener)
+							l.contentsChanged(new ListDataEvent(jSettingsListBox, ListDataEvent.INTERVAL_ADDED, allSettings.size()-1,allSettings.size()));
+					}
+				});
+				JButton jDelButton = new JButton("Delete");
+				jDelButton.addActionListener(new ActionListener(){
+					@Override public void actionPerformed(ActionEvent e) {
+						Properties p= null;
+						String propName=(String)jSettingsListBox.getSelectedItem();
+						if(propName!=null)
+							p=findPropsByName(propName);
+						if(p==null)
+							JOptionPane.showMessageDialog(me,"Select a setting first!");
+						else
+						if(JOptionPane.showConfirmDialog(me, "Delete setting '"+p.getProperty("name")+"'???") == JOptionPane.OK_OPTION)
+						{
+							int x=allSettings.indexOf(p);
+							allSettings.remove(p);
+							for(ListDataListener l : listener)
+								l.contentsChanged(new ListDataEvent(jSettingsListBox, ListDataEvent.INTERVAL_ADDED,x,x+1));
+						}
+					}
+				});
+				
+				jSettingsPanel.add(jSettingsTextField);
+				jSettingsPanel.add(jSettingsListBox);
+				jSettingsPanel.add(jLoadButton);
+				jSettingsPanel.add(jAddButton);
+				jSettingsPanel.add(jDelButton);
 
 				RemoteNode treeModel;
 				treeModel = new RemoteNode(null,null);
@@ -132,9 +241,11 @@ public class zimmerscp extends javax.swing.JFrame implements MouseListener, Wind
 
 				jSplitPane2 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, jTreePanelD1, jTreePanelD);
 				jSplitPane2.setDividerLocation(DEFAULT_COL_WIDTH);
-				jSplitPane1 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, jTreePanelS, jSplitPane2);
-				jSplitPane1.setDividerLocation(DEFAULT_COL_WIDTH);
-				this.getContentPane().add(jSplitPane1);
+				jSplitPane1 = new JSplitPane(JSplitPane.VERTICAL_SPLIT, jTreePanelS, jSettingsPanel);
+				jSplitPane1.setDividerLocation(500);
+				jSplitPane0 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, jSplitPane1, jSplitPane2);
+				jSplitPane0.setDividerLocation(DEFAULT_COL_WIDTH);
+				this.getContentPane().add(jSplitPane0);
 			}
 			setSize(DEFAULT_COL_WIDTH * 3, 500);
 		}
@@ -212,9 +323,33 @@ public class zimmerscp extends javax.swing.JFrame implements MouseListener, Wind
 		Properties p = new Properties();
 		p.load(new FileInputStream(
 				new File(System.getProperty("user.home") + File.separatorChar + ".settings" + File.separatorChar + "zimmerscp.ini")));
+		if(p.containsKey("name"))
+			jSettingsTextField.setText(p.getProperty("name"));
+		else
+			jSettingsTextField.setText("default");
+		
 		jTreeS.loadSettings(this, jTreeTextS, p);
 		jTreeD1.loadSettings(this, jTreeTextD1, p);
 		jTreeD2.loadSettings(this, jTreeTextD2, p);
+		for(int i=2;;i++)
+		{
+			String is=Integer.toString(i);
+			Properties newP=null;
+			for(Object key : p.keySet())
+			{
+				if(key.toString().startsWith(is)&&(!Character.isDigit(key.toString().charAt(is.length()))))
+				{
+					if(newP==null)
+					{
+						newP=new Properties();
+						allSettings.add(newP);
+					}
+					newP.put(key.toString().substring(is.length()), p.get(key));
+				}
+			}
+			if(newP==null)
+				break;
+		}
 	}
 
 	public void windowActivated(WindowEvent arg0)
@@ -236,9 +371,19 @@ public class zimmerscp extends javax.swing.JFrame implements MouseListener, Wind
 		{
 			FileOutputStream file = new FileOutputStream(F);
 			Properties p = new Properties();
+			p.setProperty("name", jSettingsTextField.getText());
 			jTreeS.saveSettings(p);
 			jTreeD1.saveSettings(p);
 			jTreeD2.saveSettings(p);
+			int n=2;
+			for(Properties P : allSettings)
+			{
+				for(Object key : P.keySet())
+				{
+					p.put(""+n+key.toString(), P.get(key));
+				}
+				n++;
+			}
 			p.store(file, "properties for for zimmerscp");
 		}
 		catch (Exception e)
