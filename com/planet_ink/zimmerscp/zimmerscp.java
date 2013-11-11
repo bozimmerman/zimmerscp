@@ -325,6 +325,7 @@ public class zimmerscp extends javax.swing.JFrame implements MouseListener, Wind
 		Properties p = new Properties();
 		p.load(new FileInputStream(
 				new File(System.getProperty("user.home") + File.separatorChar + ".settings" + File.separatorChar + "zimmerscp.ini")));
+		
 		if(p.containsKey("name"))
 			jSettingsTextField.setText(p.getProperty("name"));
 		else
