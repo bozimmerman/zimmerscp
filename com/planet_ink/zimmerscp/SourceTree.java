@@ -257,7 +257,6 @@ public class SourceTree extends DragDropTree
 		if(!F.delete()) throw new IOException("Couldn't delete file "+F.getAbsolutePath());
 	}
 	
-	@SuppressWarnings("unchecked")
 	protected boolean TestNodeImport(TransferHandler.TransferSupport t)
 	{
 		if (t.getDropLocation() instanceof JTree.DropLocation)
@@ -329,7 +328,6 @@ public class SourceTree extends DragDropTree
 		return true;
 	}
 	
-	@SuppressWarnings("unchecked")
 	private final boolean TransferRemoteLocal(DestTree rTree, RemoteNode srcR, FileNode dest)
 	{
 		if(!dest.getFile().isDirectory())
