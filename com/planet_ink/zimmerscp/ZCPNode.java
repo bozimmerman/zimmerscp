@@ -17,7 +17,7 @@ public abstract class ZCPNode<T extends ZCPNode<T>> extends DefaultMutableTreeNo
 	@SuppressWarnings("unchecked")
 	public T findChildNode(String name, boolean nameIsDirectory)
 	{
-		for(Enumeration e=children(); e.hasMoreElements();)
+		for(Enumeration<DefaultMutableTreeNode> e=children(); e.hasMoreElements();)
 		{
 			T fn = (T)e.nextElement();
 			if((fn.isDirectory()== nameIsDirectory)
@@ -30,7 +30,7 @@ public abstract class ZCPNode<T extends ZCPNode<T>> extends DefaultMutableTreeNo
 	@SuppressWarnings("unchecked")
 	public T findChildNodeIgnoreCase(String name)
 	{
-		for(Enumeration e=children(); e.hasMoreElements();)
+		for(Enumeration<DefaultMutableTreeNode> e=children(); e.hasMoreElements();)
 		{
 			T fn = (T)e.nextElement();
 			if(name.equalsIgnoreCase(fn.getFileName()))
@@ -42,7 +42,7 @@ public abstract class ZCPNode<T extends ZCPNode<T>> extends DefaultMutableTreeNo
 	@SuppressWarnings("unchecked")
 	public T findChildNode(String name)
 	{
-		for(Enumeration e=children(); e.hasMoreElements();)
+		for(Enumeration<DefaultMutableTreeNode> e=children(); e.hasMoreElements();)
 		{
 			T fn = (T)e.nextElement();
 			if(name.equals(fn.getFileName()))
@@ -54,7 +54,7 @@ public abstract class ZCPNode<T extends ZCPNode<T>> extends DefaultMutableTreeNo
 	@SuppressWarnings("unchecked")
 	public T findChildNodeIgnoreCase(String name, boolean nameIsDirectory)
 	{
-		for(Enumeration e=children(); e.hasMoreElements();)
+		for(Enumeration<DefaultMutableTreeNode> e=children(); e.hasMoreElements();)
 		{
 			T fn = (T)e.nextElement();
 			if((fn.isDirectory()== nameIsDirectory)

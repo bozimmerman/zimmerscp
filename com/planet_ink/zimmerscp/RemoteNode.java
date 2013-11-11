@@ -181,7 +181,7 @@ public class RemoteNode extends ZCPNode<RemoteNode>
 	}
 
 	@SuppressWarnings("unchecked")
-	public Enumeration children()
+	public Enumeration<RemoteNode> children()
 	{
 		if (!checkedForKids)
 			safeLoadKids();

@@ -340,7 +340,7 @@ public class SourceTree extends DragDropTree
 		if(srcR.isDirectory())
 		{
 			FileNode nxtDir = null;
-			for(Enumeration e=dest.children(); e.hasMoreElements();)
+			for(Enumeration<FileNode> e=dest.children(); e.hasMoreElements();)
 			{
 				FileNode fn = (FileNode)e.nextElement();
 				if(fn.getFile().isDirectory() && fn.getFile().getName().equals(srcR.getFileName()))
@@ -373,7 +373,7 @@ public class SourceTree extends DragDropTree
 				nxtDir=new FileNode(dest.getTree(),F);
 				dest.add(nxtDir);
 			}
-			for(Enumeration e=srcR.children(); e.hasMoreElements();)
+			for(Enumeration<RemoteNode> e=srcR.children(); e.hasMoreElements();)
 			{
 				RemoteNode nxtR=(RemoteNode)e.nextElement();
 				if(!TransferRemoteLocal(rTree,nxtR,nxtDir))

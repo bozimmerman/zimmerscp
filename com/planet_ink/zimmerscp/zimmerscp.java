@@ -17,7 +17,7 @@ public class zimmerscp extends javax.swing.JFrame implements MouseListener, Wind
 {
 	private static final long serialVersionUID = -2866392485562765792L;
 	private static final int DEFAULT_COL_WIDTH = 250;
-	private static final double VERSION=1.0;
+	private static final double VERSION=1.1;
 	private JSplitPane jSplitPane1;
 	private SourceTree jTreeS;
 	private DestTree jTreeD1;
@@ -116,6 +116,7 @@ public class zimmerscp extends javax.swing.JFrame implements MouseListener, Wind
 				JPanel jSettingsPanel = new JPanel();
 				jSettingsPanel.setMinimumSize(new java.awt.Dimension(DEFAULT_COL_WIDTH, 100));
 				jSettingsPanel.setSize(new java.awt.Dimension(DEFAULT_COL_WIDTH, 100));
+				jSettingsPanel.setPreferredSize(new java.awt.Dimension(DEFAULT_COL_WIDTH, 100));
 				final JComboBox jSettingsListBox = new JComboBox();
 				jSettingsListBox.setPreferredSize(new Dimension(DEFAULT_COL_WIDTH-40, 20));
 				final List<ListDataListener> listener=new LinkedList<ListDataListener>();
@@ -161,7 +162,7 @@ public class zimmerscp extends javax.swing.JFrame implements MouseListener, Wind
 					@Override public void actionPerformed(ActionEvent e) {
 						Properties p=findPropsByName(jSettingsTextField.getText());
 						if((p!=null)
-						&&(JOptionPane.showConfirmDialog(me, "Update setting '"+p.getProperty("name")+"'???") == JOptionPane.OK_OPTION))
+						&&(JOptionPane.showConfirmDialog(me, "Update setting '"+p.getProperty("name")+"'???") != JOptionPane.YES_OPTION))
 							return;
 						if(p!=null)
 							allSettings.remove(p);
@@ -185,7 +186,7 @@ public class zimmerscp extends javax.swing.JFrame implements MouseListener, Wind
 						if(p==null)
 							JOptionPane.showMessageDialog(me,"Select a setting first!");
 						else
-						if(JOptionPane.showConfirmDialog(me, "Delete setting '"+p.getProperty("name")+"'???") == JOptionPane.OK_OPTION)
+						if(JOptionPane.showConfirmDialog(me, "Delete setting '"+p.getProperty("name")+"'???") == JOptionPane.YES_OPTION)
 						{
 							int x=allSettings.indexOf(p);
 							allSettings.remove(p);
@@ -302,6 +303,7 @@ public class zimmerscp extends javax.swing.JFrame implements MouseListener, Wind
 	public static JDialog showWorkingDialog(Frame f)
 	{
 		JDialog dialog = new JDialog(f, "Working ...");
+		dialog.setSize(new Dimension(150,10));
 		dialog.setLocationRelativeTo(f); // center on screen
 		dialog.setVisible(true);
 		dialog.toFront(); // raise above other java windows

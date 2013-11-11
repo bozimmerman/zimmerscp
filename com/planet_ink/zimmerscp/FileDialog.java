@@ -291,7 +291,6 @@ public class FileDialog extends JDialog implements KeyListener, WindowListener
 			{
 				int relpos=0;
 				int selection=getSelectionStart();
-				int pos = selection;
 				if(getSelectionEnd()>selection+1)
 					return;
 				String s = getText();
@@ -355,9 +354,8 @@ public class FileDialog extends JDialog implements KeyListener, WindowListener
 							this.setSelectionStart(this.getSelectionStart()+1);
 							this.setSelectionEnd(this.getSelectionEnd()+1);
 							selection++;
-							pos++;
 						}
-				        KeyEvent k=new KeyEvent(this, KeyEvent.KEY_PRESSED,System.currentTimeMillis(),0, KeyEvent.VK_DELETE,(char)127);
+						KeyEvent k=new KeyEvent(this, KeyEvent.KEY_PRESSED,System.currentTimeMillis(),0, KeyEvent.VK_DELETE,(char)127);
 						super.processKeyEvent(k);
 					}
 					super.processKeyEvent(e);

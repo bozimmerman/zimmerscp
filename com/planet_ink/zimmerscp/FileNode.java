@@ -48,7 +48,7 @@ public class FileNode extends ZCPNode<FileNode>
 	public FileNode setTree(SourceTree tree){ this.tree=tree; return this;}
 	
 	@SuppressWarnings("unchecked")
-	public Enumeration children()
+	public Enumeration<FileNode> children()
 	{
 		if (!checkedForKids)
 			build(f);
