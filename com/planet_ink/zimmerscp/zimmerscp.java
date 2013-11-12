@@ -98,25 +98,24 @@ public class zimmerscp extends javax.swing.JFrame implements MouseListener, Wind
 				FileNode jTreeModelS = new FileNode(null);
 				jTreeS = new SourceTree("jTreeModelS", this, jTreeModelS);
 				jTreeModelS.setTree(jTreeS);
-				jTreeS.setMinimumSize(new java.awt.Dimension(DEFAULT_COL_WIDTH, 400));
+				jTreeS.setMinimumSize(new java.awt.Dimension(DEFAULT_COL_WIDTH, 350));
 				jTreeS.addMouseListener(this);
 				jTreeTextS = new JLabel("Local: <Click Here>");
 				jTreeTextS.setOpaque(true);
 				jTreeTextS.addMouseListener(this);
 				jTreeTextS.setBackground(new Color(255, 255, 140));
 				jTreeTextS.setMinimumSize(new java.awt.Dimension(DEFAULT_COL_WIDTH, 11));
+				
 				JPanel jTreePanelS = new JPanel();
 				jTreePanelS.setLayout(new BorderLayout());
-				jTreePanelS.setMinimumSize(new java.awt.Dimension(DEFAULT_COL_WIDTH, 400));
+				jTreePanelS.setMinimumSize(new java.awt.Dimension(DEFAULT_COL_WIDTH, 350));
 				jTreePanelS.add(jTreeTextS, BorderLayout.NORTH);
 				JScrollPane jScrollTreeS = new JScrollPane(jTreeS);
-				jScrollTreeS.setMinimumSize(new java.awt.Dimension(DEFAULT_COL_WIDTH, 400));
+				jScrollTreeS.setMinimumSize(new java.awt.Dimension(DEFAULT_COL_WIDTH, 350));
 				jTreePanelS.add(jScrollTreeS, BorderLayout.CENTER);
 				
 				JPanel jSettingsPanel = new JPanel();
-				jSettingsPanel.setMinimumSize(new java.awt.Dimension(DEFAULT_COL_WIDTH, 100));
-				jSettingsPanel.setSize(new java.awt.Dimension(DEFAULT_COL_WIDTH, 100));
-				jSettingsPanel.setPreferredSize(new java.awt.Dimension(DEFAULT_COL_WIDTH, 100));
+				jSettingsPanel.setMinimumSize(new java.awt.Dimension(DEFAULT_COL_WIDTH, 150));
 				final JComboBox jSettingsListBox = new JComboBox();
 				jSettingsListBox.setPreferredSize(new Dimension(DEFAULT_COL_WIDTH-40, 20));
 				final List<ListDataListener> listener=new LinkedList<ListDataListener>();
@@ -243,10 +242,11 @@ public class zimmerscp extends javax.swing.JFrame implements MouseListener, Wind
 				jSplitPane2 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, jTreePanelD1, jTreePanelD);
 				jSplitPane2.setDividerLocation(DEFAULT_COL_WIDTH);
 				jSplitPane1 = new JSplitPane(JSplitPane.VERTICAL_SPLIT, jTreePanelS, jSettingsPanel);
-				jSplitPane1.setDividerLocation(500);
+				jSplitPane1.setDividerLocation(350);
 				jSplitPane0 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, jSplitPane1, jSplitPane2);
 				jSplitPane0.setDividerLocation(DEFAULT_COL_WIDTH);
-				this.getContentPane().add(jSplitPane0);
+				getContentPane().add(jSplitPane0);
+				pack();
 			}
 			setSize(DEFAULT_COL_WIDTH * 3, 500);
 		}
