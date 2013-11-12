@@ -1,0 +1,24 @@
+ZimmerSCP
+
+Purpose:
+This program is a GUI based SCP (Secure CoPy) client.  It utilizes three windows for three file systems, allowing files to be copied between them, as well as files in each to be deleted, edited, or renamed either independently, or remote files in sync with each other.
+
+Running:
+ZimmerSCP was written and compiled with sun jdk1.6.  If you have a JRE installed, running may be just a matter of executing "zimmerscp.jar".  Otherwise, you can run it on the command line with:
+/path/to/jre1.6/bin/java -jar zimmerscp.jar
+
+Screen:
+The window is divided into three screens.  The leftmost is for a local file system, the middle for one of the remote scp file systems, and the right for a second remote scp file system.
+
+The top colored bar above each file system contains the host and path for each file system.  Clicking on each of the colored bars will bring up the settings for that file system.  At the bottom of the leftmost (local) file system is a small window where settings for all three sections can be saved and restored.
+
+Settings:
+When clicking on the colored bar in the leftmost (local) file system, a popup window appears where you can set the local file system path to appear in that section, along with the backup directory where remotely changed files can optionally be saved.  A checkbox determines whether remote 00INDEX files that get automatically changed are backed up in the backup directory, and a second checkbox determines whether any remote files that are copy-replaced are backed up in the backup directory before replacement.
+
+When clicking on the colored bars in the middle or rightmost (remote) file systems, a popup window appears where you can set the remote file system scp host name, the scp login username and password, and the remote initial path to CD into. The first checkbox, to manage 00INDEX files, will add any new files added to each directory to a 00INDEX file located in the same directory, after asking the user for a description of the file.  The last checkbox, to create new 00INDEX files, will add a new 00INDEX file when a file is added to a directory without a 00INDEX file.  The middle checkbox, to "Sync with Others", will mirror any file additions, deletes, renames, or edits made in that remote file system to the other remote file system.
+
+File systems:
+Each filesystem will show the topmost directory as a node, under which a tree of files and directories appear when the node is clicked on.
+
+Files may be freely copied between the three file systems by dragging individual files (sorry, not directories, yet) from one file system, to a *directory* in a different file system. Right-clicking on a directory allows you to get information about, delete recursively, rename, or make a new directory inside that directory. Right-clicking on a file allows you to get information about, rename, delete, view (text only!), or edit (text only!) the file.
+
