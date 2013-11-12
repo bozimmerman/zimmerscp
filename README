@@ -1,0 +1,15 @@
+ZimmerSCP (C)2013 Bo Zimmerman
+Please read the LICENSE file and jsch.LICENSE file for license information
+Please read the NOTICE file for credits information
+Please read the USAGE file for usage information
+
+Features:
+Two (2) remote scp filesystem trees plus one local filesystem tree.
+View and Edit remote and local text files.
+Perform common file operations, such as rename, delete, create directory.
+Automatically sync changes between two remote directories.
+Automatically maintain a 00INDEX-formatted file in all directories.
+Backup changed files locally automatically
+Maintain numerous configurations
+
+
