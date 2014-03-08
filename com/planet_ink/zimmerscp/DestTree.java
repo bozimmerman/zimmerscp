@@ -187,6 +187,7 @@ public class DestTree extends DragDropTree
 							else 
 							if (o instanceof List)
 							{
+								@SuppressWarnings("rawtypes")
 								List<File> fl = (List) o;
 								for (File f : fl)
 									if ((f == null) || (!f.exists()))
@@ -207,7 +208,7 @@ public class DestTree extends DragDropTree
 		return false;
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	protected boolean HandleNodeImport(TransferHandler.TransferSupport t)
 	{
 		if (t.getDropLocation() instanceof JTree.DropLocation)
