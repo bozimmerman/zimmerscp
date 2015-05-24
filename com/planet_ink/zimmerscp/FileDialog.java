@@ -79,6 +79,26 @@ public class FileDialog extends JDialog implements KeyListener, WindowListener
 	@Override
 	public void keyPressed(KeyEvent e)
 	{
+		if(e.isControlDown() && (e.getKeyCode() == KeyEvent.VK_F))
+		{
+			String path = JOptionPane.showInputDialog("Enter a search string");
+			if(path.length()>0)
+			{
+				Point point = textField.getCaret().getMagicCaretPosition();
+				if(point == null)
+					point = new Point(0,0);
+				int caretPosition=textField.getCaretPosition();
+				if(caretPosition < 0) caretPosition = 0;
+				int x=textField.getText().indexOf(path,caretPosition);
+				if((x<0)&&(caretPosition>0))
+					x=textField.getText().indexOf(path);
+				if(x>=0)
+					textField.setCaretPosition(x);
+				
+			}
+			return;
+		}
+		
 		if (edit == EDIT_TYPE.READ_ONLY)
 		{
 			if (e.getKeyCode() ==  KeyEvent.VK_ESCAPE)
