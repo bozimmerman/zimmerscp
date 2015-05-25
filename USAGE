@@ -22,3 +22,5 @@ Each filesystem will show the topmost directory as a node, under which a tree of
 
 Files may be freely copied between the three file systems by dragging individual files (sorry, not directories, yet) from one file system, to a *directory* in a different file system. Right-clicking on a directory allows you to get information about, delete recursively, rename, or make a new directory inside that directory. Right-clicking on a file allows you to get information about, rename, delete, view (text only!), or edit (text only!) the file.
 
+Editor:
+The text file editor supports cut and paste, and search with cntrl-f and cntrl-n to repeat last search.
