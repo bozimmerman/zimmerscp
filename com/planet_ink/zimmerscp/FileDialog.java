@@ -19,6 +19,7 @@ public class FileDialog extends JDialog implements KeyListener, WindowListener
 	private boolean dirty = false;
 	private Frame f;
 	private File F;
+	private String lastSearch="";
 	private String cr="\n";
 
 	public FileDialog(Frame f, String filename, String preFormattedText, EDIT_TYPE edit)
@@ -79,22 +80,19 @@ public class FileDialog extends JDialog implements KeyListener, WindowListener
 	@Override
 	public void keyPressed(KeyEvent e)
 	{
-		if(e.isControlDown() && (e.getKeyCode() == KeyEvent.VK_F))
+		if(e.isControlDown() && ((e.getKeyCode() == KeyEvent.VK_F)||(e.getKeyCode() == KeyEvent.VK_N)))
 		{
-			String path = JOptionPane.showInputDialog("Enter a search string");
-			if(path.length()>0)
+			if((e.getKeyCode() == KeyEvent.VK_F)||(lastSearch==null)||(lastSearch.trim().length()==0))
+				lastSearch = JOptionPane.showInputDialog("Enter a search string");
+			if((lastSearch!=null)&&(lastSearch.trim().length()>0))
 			{
-				Point point = textField.getCaret().getMagicCaretPosition();
-				if(point == null)
-					point = new Point(0,0);
 				int caretPosition=textField.getCaretPosition();
 				if(caretPosition < 0) caretPosition = 0;
-				int x=textField.getText().indexOf(path,caretPosition);
+				int x=textField.getText().indexOf(lastSearch,caretPosition);
 				if((x<0)&&(caretPosition>0))
-					x=textField.getText().indexOf(path);
+					x=textField.getText().indexOf(lastSearch);
 				if(x>=0)
-					textField.setCaretPosition(x);
-				
+					textField.setCaretPosition(x+1);
 			}
 			return;
 		}
