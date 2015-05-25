@@ -336,10 +336,9 @@ public class DestTree extends DragDropTree
 			JDialog dlg = zimmerscp.showWorkingDialog(f);
 			try
 			{
-				boolean response=UnsafeDeleteRemoteFile(this,existFile);
-				if(response && getSync())
+				RemoteNode otherNode = null;
+				if(getSync())
 				{
-					RemoteNode otherNode = null;
 					try
 					{
 						otherNode = FindSibling(existFile);
@@ -347,8 +346,11 @@ public class DestTree extends DragDropTree
 					catch(Exception e){
 						return false;
 					}
-					if(otherNode != null)
-						response=UnsafeDeleteRemoteFile(zimmerscp.INSTANCE.getOtherRemoteTree(this), otherNode);
+				}
+				boolean response=UnsafeDeleteRemoteFile(this,existFile);
+				if(response && getSync()&&(otherNode != null))
+				{
+					response=UnsafeDeleteRemoteFile(zimmerscp.INSTANCE.getOtherRemoteTree(this), otherNode);
 				}
 				if(!response)
 				{
@@ -1268,11 +1270,9 @@ public class DestTree extends DragDropTree
 		String newName = JOptionPane.showInputDialog(f,"New name");
 		if((newName==null)||newName.equals(node.getFileName())) 
 			return true;
-		if(!RenameRemote(node,newName))
-			return false;
+		RemoteNode siblingNode = null;
 		if(getSync())
 		{
-			RemoteNode siblingNode = null;
 			try
 			{
 				siblingNode = FindSibling(node);
@@ -1286,6 +1286,11 @@ public class DestTree extends DragDropTree
 				JOptionPane.showMessageDialog(f, "Sync Error: "+e.getMessage());
 				return false;
 			}
+		}
+		if(!RenameRemote(node,newName))
+			return false;
+		if(getSync() && (siblingNode != null))
+		{
 			DestTree otherTree = zimmerscp.INSTANCE.getOtherRemoteTree(this);
 			return otherTree.RenameRemote(siblingNode,newName);
 		}
