@@ -415,10 +415,13 @@ public class SCPConnection
 				while ((s != null) && (s.trim().length() > 0))
 				{
 					RemoteNode node = new RemoteNode(tree,this);
+					x = 10;
+					if((s.indexOf('.')==10)&&(s.indexOf(' ')==11))
+						x=11;
+					else
 					if (s.indexOf(' ') != 10)
 						throw new IOException("Unexpected no att: " + s);
 					node.parseUnixAttributes(s, 1);
-					x = 10;
 					while (s.charAt(x + 1) == ' ')
 						x++;
 					x = s.indexOf(' ', x + 1); // get past the funny number
