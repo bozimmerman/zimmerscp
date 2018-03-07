@@ -9,6 +9,7 @@ public class FileNode extends ZCPNode<FileNode>
 	private File f;
 	private boolean checkedForKids = false;
 	private SourceTree tree = null;
+	private volatile Boolean isDirectory = null;
 
 	public FileNode(SourceTree tree)
 	{
@@ -21,6 +22,7 @@ public class FileNode extends ZCPNode<FileNode>
 	{
 		this(tree);
 		this.f = f;
+		isDirectory = Boolean.valueOf(f.isDirectory());
 	}
 	
 	public boolean renameTo(File newf)
@@ -57,7 +59,7 @@ public class FileNode extends ZCPNode<FileNode>
 
 	public boolean getAllowsChildren()
 	{
-		return (f == null) || (f.isDirectory());
+		return (f == null) || (isDirectory());
 	}
 
 	public synchronized FileNode build(File f)
@@ -65,12 +67,14 @@ public class FileNode extends ZCPNode<FileNode>
 		if ((checkedForKids) || (f == null))
 			return this;
 		this.f = f;
+		isDirectory = Boolean.valueOf(f.isDirectory());
 		checkedForKids = true;
-		if ((f != null) && (f.isDirectory()))
+		if (isDirectory.booleanValue())
 		{
 			File[] files = f.listFiles();
 			for (int x = 0; x < files.length; x++)
 				add(new FileNode(tree,files[x]));
+			sort();
 		}
 		return this;
 	}
@@ -107,6 +111,8 @@ public class FileNode extends ZCPNode<FileNode>
 
 	public boolean isDirectory()
 	{
-		return f.isDirectory();
+		if(isDirectory == null)
+			isDirectory = Boolean.valueOf(f.isDirectory());
+		return isDirectory.booleanValue();
 	}
 }

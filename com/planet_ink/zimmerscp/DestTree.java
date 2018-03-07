@@ -23,6 +23,8 @@ import javax.swing.JTree;
 import javax.swing.TransferHandler;
 import javax.swing.tree.TreeNode;
 
+import com.jcraft.jsch.JSchException;
+
 public class DestTree extends DragDropTree
 {
 	/**
@@ -153,6 +155,11 @@ public class DestTree extends DragDropTree
 			textField.setText("Remote #" + num + ": " + host + ":" + root);
 			node.setConnection(conn);
 			node.loadKids();
+		}
+		catch (JSchException e)
+		{
+			dlg.dispose();
+			JOptionPane.showMessageDialog(this, "Unable to connect to " + host);
 		}
 		catch (Exception e)
 		{
@@ -300,6 +307,7 @@ public class DestTree extends DragDropTree
 					return false;
 				}
 				dest.add(nxtDir);
+				dest.sort();
 			}
 			File[] filelist = srcF.listFiles();
 			Vector<File> files=new Vector<File>();

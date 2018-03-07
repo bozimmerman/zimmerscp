@@ -214,8 +214,11 @@ public class RemoteNode extends ZCPNode<RemoteNode>
 			return;
 		Vector<RemoteNode> V = conn.getDirectory(tree,fullName + (fullName.endsWith("/")?"/":""));
 		if (V != null)
+		{
 			for (RemoteNode n : V)
 				add(n);
+			sort();
+		}
 	}
 
 }

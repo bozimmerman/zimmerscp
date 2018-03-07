@@ -194,6 +194,7 @@ public class SourceTree extends DragDropTree
 			return false;
 		}
 		node.add(new FileNode(this,F));
+		node.sort();
 		updateUI();
 		repaint();
 		return true;
@@ -341,7 +342,7 @@ public class SourceTree extends DragDropTree
 			FileNode nxtDir = null;
 			for(Enumeration<FileNode> e=dest.children(); e.hasMoreElements();)
 			{
-				FileNode fn = (FileNode)e.nextElement();
+				FileNode fn = e.nextElement();
 				if(fn.getFile().isDirectory() && fn.getFile().getName().equals(srcR.getFileName()))
 				{
 					nxtDir=fn;
@@ -371,6 +372,7 @@ public class SourceTree extends DragDropTree
 				}
 				nxtDir=new FileNode(dest.getTree(),F);
 				dest.add(nxtDir);
+				dest.sort();
 			}
 			for(Enumeration<RemoteNode> e=srcR.children(); e.hasMoreElements();)
 			{

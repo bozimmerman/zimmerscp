@@ -70,8 +70,14 @@ public abstract class ZCPNode<T extends ZCPNode<T>> extends DefaultMutableTreeNo
 		synchronized(this)
 		{
 			super.add(node);
-			Collections.sort(children);
 		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	public void sort()
+	{
+		if(children != null)
+			Collections.sort(children);
 	}
 	
 	public abstract String getFileName();
