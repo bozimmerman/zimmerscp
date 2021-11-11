@@ -24,6 +24,7 @@ import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
 
 public class SourceTree extends DragDropTree
 {
@@ -37,6 +38,7 @@ public class SourceTree extends DragDropTree
 	{
 		super(name, f, m);
 		this.f=f;
+		this.getSelectionModel().setSelectionMode(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
 		this.add(getContextMenu());
 	}
 
@@ -276,6 +278,46 @@ public class SourceTree extends DragDropTree
 		if(!F.delete()) throw new IOException("Couldn't delete file "+F.getAbsolutePath());
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@Override
+	protected boolean handleNodeImport(final Object sn, final Object tn)
+	{
+		final FileNode tnode = (FileNode)tn;
+		List<RemoteNode> fl = new ArrayList<RemoteNode>();
+		if (sn instanceof RemoteNode)
+			fl.add((RemoteNode) sn);
+		else if (sn instanceof List)
+			fl = (List) sn;
+		if (fl.size() > 0)
+			return transferRemoteLocal(fl.iterator().next().getTree(), fl, tnode);
+		return false;
+
+	}
+
+	@SuppressWarnings({ "rawtypes" })
+	@Override
+	protected boolean testNodeImport(final Object sn, final Object tn)
+	{
+		if(tn instanceof FileNode)
+		{
+			final FileNode tnode = (FileNode)tn;
+			if (tnode.getFile().isDirectory())
+			{
+				try
+				{
+					if (sn instanceof RemoteNode)
+						return true;
+					if (sn instanceof List)
+						return ((List)sn).size()>0;
+				}
+				catch (final Exception e)
+				{
+				}
+			}
+		}
+		return false;
+	}
+
 	@SuppressWarnings("rawtypes")
 	protected boolean testNodeImport(final TransferHandler.TransferSupport t)
 	{
@@ -468,16 +510,23 @@ public class SourceTree extends DragDropTree
 				if (flavors[i].isFlavorJavaFileListType())
 				{
 					dtde.acceptDrop(DnDConstants.ACTION_COPY_OR_MOVE);
+					final Object o = tr.getTransferData(flavors[i]);
+					final Point loc = dtde.getLocation();
+					final TreePath destinationPath = getPathForLocation(loc.x, loc.y);
+					final DefaultMutableTreeNode tNode = (DefaultMutableTreeNode)destinationPath.getLastPathComponent();
+					if(!(o instanceof List))
+					{
+						if(this.testNodeImport(o, tNode))
+							this.handleNodeImport(o, tNode);
+						continue;
+					}
 					@SuppressWarnings("rawtypes")
-					final List list = (List) tr.getTransferData(flavors[i]);
+					final List list = (List) o;
 					for (int j = 0; j < list.size(); j++)
 					{
 						final File F = new File(""+list.get(j));
 						if(F.exists())
 						{
-							final Point loc = dtde.getLocation();
-							final TreePath destinationPath = getPathForLocation(loc.x, loc.y);
-							final DefaultMutableTreeNode tNode = (DefaultMutableTreeNode)destinationPath.getLastPathComponent();
 							if(tNode instanceof FileNode)
 							{
 								final FileNode fn = (FileNode)tNode;
@@ -518,6 +567,11 @@ public class SourceTree extends DragDropTree
 								}
 							}
 						}
+						else
+						{
+							if(this.testNodeImport(o, tNode))
+								this.handleNodeImport(o, tNode);
+						}
 						//System.out.println("JFLT"+list.get(j) + "\n");
 					}
 					dtde.dropComplete(true);
@@ -552,7 +606,7 @@ public class SourceTree extends DragDropTree
 		catch (final Exception e)
 		{
 			//e.printStackTrace();
-			dtde.rejectDrop();
+			//dtde.rejectDrop();
 		}
 	}
 

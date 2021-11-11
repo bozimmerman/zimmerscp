@@ -3,8 +3,7 @@ package com.planet_ink.zimmerscp;
 import java.awt.Frame;
 import java.awt.PopupMenu;
 import java.awt.datatransfer.Transferable;
-import java.awt.dnd.DropTarget;
-import java.awt.dnd.DropTargetListener;
+import java.awt.dnd.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Properties;
@@ -15,7 +14,7 @@ import javax.swing.tree.*;
 public abstract class DragDropTree extends JTree implements ActionListener, DropTargetListener
 {
 	private static final long serialVersionUID = 4327399837099558314L;
-	public final DropTarget dt;
+	//public final DropTarget dt;
 
 	public TreeNode getSelectedNode()
 	{
@@ -36,6 +35,10 @@ public abstract class DragDropTree extends JTree implements ActionListener, Drop
 
 	protected abstract boolean testNodeImport(TransferHandler.TransferSupport t);
 
+	protected abstract boolean handleNodeImport(final Object sn, final Object tn);
+
+	protected abstract boolean testNodeImport(final Object sn, final Object tn);
+
 	public void actionPerformed(final ActionEvent e)
 	{
 	}
@@ -49,14 +52,9 @@ public abstract class DragDropTree extends JTree implements ActionListener, Drop
 		this.setDropMode(DropMode.ON);
 		add(getContextMenu());
 		this.setShowsRootHandles(false);// to show the root icon
-		this.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION); // set
-		// single
-		// selection
-		// for
-		// the
-		// Tree
+		this.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+		//dt = new DropTarget(this,this);
 		this.setEditable(false);
-		dt = new DropTarget(this,this);
 		this.setTransferHandler(new TransferHandler()
 		{
 			private static final long serialVersionUID = 3136844598684414486L;
