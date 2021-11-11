@@ -19,6 +19,8 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
+import java.util.TreeSet;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -192,7 +194,36 @@ public class SourceTree extends DragDropTree
 		if (e.getActionCommand().equalsIgnoreCase("Info"))
 			new FileInfoDialog(f, (FileNode) getSelectedNode()).setVisible(true);
 		else if (e.getActionCommand().equalsIgnoreCase("Delete"))
-			deleteLocal((FileNode) getSelectedNode());
+		{
+			if(me.getSelectionModel().getSelectionMode() == TreeSelectionModel.SINGLE_TREE_SELECTION)
+				deleteLocal((FileNode) getSelectedNode(),false);
+			else
+			{
+				final TreePath[] paths = me.getSelectionPaths();
+				final Set<FileNode> parents = new TreeSet<FileNode>();
+				for(final TreePath tP : paths)
+				{
+					final FileNode node = (FileNode)tP.getLastPathComponent();
+					parents.add((FileNode)node.getParent());
+				}
+				for(final TreePath tP : paths)
+				{
+					final FileNode node = (FileNode)tP.getLastPathComponent();
+					if(!deleteLocal(node,true))
+						break;
+				}
+				if(parents.size()>0)
+				{
+					for(final FileNode p : parents)
+					{
+						p.removeAllChildren();
+						p.build(p.getFile());
+					}
+					updateUI();
+					repaint();
+				}
+			}
+		}
 		else if (e.getActionCommand().equalsIgnoreCase("MakeDir"))
 			makeDirLocal((FileNode) getSelectedNode());
 		else if (e.getActionCommand().equalsIgnoreCase("Rename"))
@@ -235,7 +266,7 @@ public class SourceTree extends DragDropTree
 		return true;
 	}
 
-	private final boolean deleteLocal(final FileNode node)
+	private final boolean deleteLocal(final FileNode node, final boolean supressCleanup)
 	{
 		if(node == getModel().getRoot())
 		{
@@ -254,10 +285,13 @@ public class SourceTree extends DragDropTree
 		{
 
 			deleteRecurseFile(node.getFile());
-			parentNode.removeAllChildren();
-			parentNode.build(parentNode.getFile());
-			updateUI();
-			repaint();
+			if(!supressCleanup)
+			{
+				parentNode.removeAllChildren();
+				parentNode.build(parentNode.getFile());
+				updateUI();
+				repaint();
+			}
 			return true;
 		}
 		catch(final Exception e)
@@ -269,14 +303,16 @@ public class SourceTree extends DragDropTree
 
 	private void deleteRecurseFile(final File F) throws IOException
 	{
-		if(F==null) return;
+		if(F==null)
+			return;
 		if(F.isDirectory())
 		{
 			final File[] FS = F.listFiles();
 			for(int f=0;f<FS.length;f++)
 				deleteRecurseFile(FS[f]);
 		}
-		if(!F.delete()) throw new IOException("Couldn't delete file "+F.getAbsolutePath());
+		if(!F.delete())
+			throw new IOException("Couldn't delete file "+F.getAbsolutePath());
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })

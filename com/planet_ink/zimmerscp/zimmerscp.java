@@ -472,14 +472,17 @@ public class zimmerscp extends javax.swing.JFrame implements MouseListener, Wind
 		{
 			if (e.getComponent() == jTreeS)
 			{
-				jTreeS.setSelectionPath(jTreeS.getPathForLocation(e.getPoint().x, e.getPoint().y));
+				final TreePath path = jTreeS.getPathForLocation(e.getPoint().x, e.getPoint().y);
+				if(jTreeS.getSelectionPaths()==null || jTreeS.getSelectionPaths().length==0)
+					jTreeS.setSelectionPath(path);
 				jTreeS.getContextMenu().show(e.getComponent(), e.getX(), e.getY());
 			}
 			else if (e.getComponent() instanceof DragDropTree)
 			{
 				final DragDropTree tree = (DragDropTree)e.getComponent();
 				final TreePath path = tree.getPathForLocation(e.getPoint().x, e.getPoint().y);
-				((DragDropTree) e.getComponent()).setSelectionPath(path);
+				if(tree.getSelectionPaths()==null || tree.getSelectionPaths().length==0)
+					((DragDropTree) e.getComponent()).setSelectionPath(path);
 				final PopupMenu menu = ((DragDropTree) e.getComponent()).getContextMenu();
 				menu.show(e.getComponent(), e.getX(), e.getY());
 			}

@@ -20,6 +20,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.Vector;
 
 import javax.swing.JDialog;
@@ -44,6 +46,7 @@ public class DestTree extends DragDropTree
 	private PopupMenu		popupMenu	= null;
 	private Frame			f			= null;
 	private JLabel			topLabel	= null;
+	private final DragDropTree	me			= this;
 
 	public DestTree(final String name, final Frame f, final RemoteNode m, final int num)
 	{
@@ -451,7 +454,7 @@ public class DestTree extends DragDropTree
 				{
 					try
 					{
-						boolean response=unsafeDeleteRemoteFile(this,existFile);
+						boolean response=unsafeDeleteRemoteFile(this,existFile,false);
 						if(!response)
 						{
 							if(JOptionPane.showConfirmDialog(f, "Error: Continue to delete?","Sync Node not found",JOptionPane.YES_NO_OPTION)!=JOptionPane.YES_OPTION)
@@ -462,7 +465,7 @@ public class DestTree extends DragDropTree
 							if(response && getSync()&&(otherNode != null))
 							{
 								final DestTree otherTree = otherNode.getTree();
-								response=unsafeDeleteRemoteFile(otherTree, otherNode);
+								response=unsafeDeleteRemoteFile(otherTree, otherNode,false);
 								if(!response)
 								{
 									JOptionPane.showMessageDialog(f, "Unable to delete remote file "+existFile.getFullName());
@@ -685,7 +688,7 @@ public class DestTree extends DragDropTree
 		return true;
 	}
 
-	private final boolean deleteRemote(final RemoteNode node)
+	private final boolean deleteRemote(final RemoteNode node, final boolean noCleanup)
 	{
 		if(node == getModel().getRoot())
 		{
@@ -713,7 +716,7 @@ public class DestTree extends DragDropTree
 			if(!removeFromBoth00INDEX(zeroZeroIndexFile, node, null, false))
 				return false;
 		}
-		boolean response=unsafeDeleteRemoteFile(this,node);
+		boolean response=unsafeDeleteRemoteFile(this,node,noCleanup);
 		if(!response)
 		{
 			if(JOptionPane.showConfirmDialog(f, "Error: Continue to delete?","Sync Node not found",JOptionPane.YES_NO_OPTION)!=JOptionPane.YES_OPTION)
@@ -728,7 +731,7 @@ public class DestTree extends DragDropTree
 					if(response && getSync() && (otherNode != null))
 					{
 						final DestTree otherTree = otherNode.getTree();
-						response=unsafeDeleteRemoteFile(otherTree, otherNode);
+						response=unsafeDeleteRemoteFile(otherTree, otherNode,false);
 						if(!response)
 						{
 							if(JOptionPane.showConfirmDialog(f, "Error: Continue to delete?","Sync Node not found",JOptionPane.YES_NO_OPTION)!=JOptionPane.YES_OPTION)
@@ -1295,7 +1298,7 @@ public class DestTree extends DragDropTree
 		}
 	}
 
-	private boolean unsafeDeleteRemoteFile(final DestTree tree, final RemoteNode node)
+	private boolean unsafeDeleteRemoteFile(final DestTree tree, final RemoteNode node, final boolean noCleanup)
 	{
 		final JDialog dlg = zimmerscp.showWorkingDialog(f);
 		try
@@ -1303,10 +1306,13 @@ public class DestTree extends DragDropTree
 			final RemoteNode parentNode= (RemoteNode)node.getParent();
 			final String fullName = node.getFullName();
 			node.getConnection().deleteFile(fullName, node.isDirectory());
-			parentNode.removeAllChildren();
-			parentNode.safeLoadKids();
-			tree.updateUI();
-			tree.repaint();
+			if(!noCleanup)
+			{
+				parentNode.removeAllChildren();
+				parentNode.safeLoadKids();
+				tree.updateUI();
+				tree.repaint();
+			}
 			return true;
 		}
 		catch(final Exception e)
@@ -1539,7 +1545,36 @@ public class DestTree extends DragDropTree
 		if (e.getActionCommand().equalsIgnoreCase("Info"))
 			new RemoteFileInfoDialog(f, (RemoteNode) getSelectedNode()).setVisible(true);
 		else if (e.getActionCommand().equalsIgnoreCase("Delete"))
-			deleteRemote((RemoteNode) getSelectedNode());
+		{
+			if(me.getSelectionModel().getSelectionMode() == TreeSelectionModel.SINGLE_TREE_SELECTION)
+				deleteRemote((RemoteNode) getSelectedNode(),false);
+			else
+			{
+				final TreePath[] paths = me.getSelectionPaths();
+				final Set<RemoteNode> parents = new TreeSet<RemoteNode>();
+				for(final TreePath tP : paths)
+				{
+					final RemoteNode node = (RemoteNode)tP.getLastPathComponent();
+					parents.add((RemoteNode)node.getParent());
+				}
+				for(final TreePath tP : paths)
+				{
+					final RemoteNode node = (RemoteNode)tP.getLastPathComponent();
+					if(!deleteRemote(node,true))
+						break;
+				}
+				if(parents.size()>0)
+				{
+					for(final RemoteNode p : parents)
+					{
+						p.removeAllChildren();
+						p.safeLoadKids();
+					}
+					updateUI();
+					repaint();
+				}
+			}
+		}
 		else if (e.getActionCommand().equalsIgnoreCase("View"))
 			viewRemote((RemoteNode) getSelectedNode());
 		else if (e.getActionCommand().equalsIgnoreCase("Edit"))
