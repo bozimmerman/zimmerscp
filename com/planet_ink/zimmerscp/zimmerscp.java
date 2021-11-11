@@ -339,7 +339,14 @@ public class zimmerscp extends javax.swing.JFrame implements MouseListener, Wind
 								jSettingsTextField.setText(p.getProperty("name"));
 							else
 								jSettingsTextField.setText("default");
+
 							jTreeS.loadSettings(me, jTreeTextS, p);
+							clearAllPanels();
+							int numPanels = 2;
+							if(p.containsKey("panels"))
+								numPanels = Integer.parseInt(p.getProperty("panels"));
+							for(int i=0;i<numPanels;i++)
+								addNextDestTree();
 							for(final DestTree T : destTrees.keySet())
 								T.loadSettings(me, destTrees.get(T), p);
 						}
@@ -362,6 +369,7 @@ public class zimmerscp extends javax.swing.JFrame implements MouseListener, Wind
 							allSettings.remove(p);
 						p = new Properties();
 						p.setProperty("name", jSettingsTextField.getText());
+						p.setProperty("panels", ""+destTrees.size());
 						jTreeS.saveSettings(p);
 						for(final DestTree T : destTrees.keySet())
 							T.saveSettings(p);
@@ -671,6 +679,7 @@ public class zimmerscp extends javax.swing.JFrame implements MouseListener, Wind
 			final FileOutputStream file = new FileOutputStream(F);
 			final Properties p = new Properties();
 			p.setProperty("name", jSettingsTextField.getText());
+			p.setProperty("panels", ""+destTrees.size());
 			jTreeS.saveSettings(p);
 			for(final DestTree T : destTrees.keySet())
 				T.saveSettings(p);

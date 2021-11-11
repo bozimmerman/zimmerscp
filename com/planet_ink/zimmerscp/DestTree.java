@@ -268,7 +268,7 @@ public class DestTree extends DragDropTree
 		return false;
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "rawtypes" })
 	protected boolean testNodeImport(final TransferHandler.TransferSupport t)
 	{
 		if (t.getDropLocation() instanceof JTree.DropLocation)
@@ -287,14 +287,7 @@ public class DestTree extends DragDropTree
 								return true;
 							else
 							if (o instanceof List)
-							{
-								@SuppressWarnings("rawtypes")
-								final List<File> fl = (List) o;
-								for (final File f : fl)
-									if ((f == null) || (!f.exists()))
-										return false;
-								return fl.size() > 0;
-							}
+								return ((List)o).size() > 0;
 							if((o instanceof RemoteNode)
 							&&(!((RemoteNode)o).isSoftlink())
 							&&(node.getTree()==((RemoteNode)o).getTree()))
@@ -309,7 +302,7 @@ public class DestTree extends DragDropTree
 		return false;
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings({ "rawtypes" })
 	protected boolean handleNodeImport(final TransferHandler.TransferSupport t)
 	{
 		if (t.getDropLocation() instanceof JTree.DropLocation)
@@ -326,11 +319,27 @@ public class DestTree extends DragDropTree
 							return softlinkRemote((RemoteNode)o, node);
 						else
 						{
-							List<File> fl = new ArrayList<File>();
+							final List<File> fl = new ArrayList<File>();
 							if (o instanceof FileNode)
 								fl.add(((FileNode) o).getFile());
-							else if (o instanceof List)
-								fl = (List) o;
+							else
+							if (o instanceof List)
+							{
+								for(final Object o1 : (List)o)
+								{
+									if(o1 instanceof RemoteNode)
+									{
+										if(!this.softlinkRemote((RemoteNode)o1, node))
+											return false;
+									}
+									else
+									if(o1 instanceof FileNode)
+										fl.add(((FileNode)o1).getFile());
+									else
+									if(o1 instanceof File)
+										fl.add((File)o1);
+								}
+							}
 							for (final File f : fl)
 								if ((f == null) || (!f.exists()))
 									return false;
@@ -683,35 +692,35 @@ public class DestTree extends DragDropTree
 			JOptionPane.showMessageDialog(f, "Root nodes can not be deleted.");
 			return false;
 		}
+		if(JOptionPane.showConfirmDialog(f, "Delete file '"+node.getFileName()+"'","Delete Node",JOptionPane.YES_NO_OPTION)!=JOptionPane.YES_OPTION)
+			return false;
+		if(node.isDirectory())
+		{
+			if(JOptionPane.showConfirmDialog(f, "This will delete this directory and all children.  Confirm.","Delete Directory",JOptionPane.YES_NO_OPTION)!=JOptionPane.YES_OPTION)
+				return false;
+		}
+		if(!backUp(node,false))
+			return false;
+		final RemoteNode zeroZeroIndexFile = getMy00INDEX(node);
+		if((zeroZeroIndexFile==null)
+		&&(getManageIndexes())
+		&&(!node.getFileName().equalsIgnoreCase("00index"))
+		&&(JOptionPane.showConfirmDialog(f, "00INDEX file not found.\nContinue to delete?","00INDEX not found",JOptionPane.YES_NO_OPTION)!=JOptionPane.YES_OPTION))
+			return false;
+
+		if((zeroZeroIndexFile!=null)&&(getManageIndexes())&&(!node.getFileName().equalsIgnoreCase("00index")))
+		{
+			if(!removeFromBoth00INDEX(zeroZeroIndexFile, node, null, false))
+				return false;
+		}
+		boolean response=unsafeDeleteRemoteFile(this,node);
+		if(!response)
+		{
+			if(JOptionPane.showConfirmDialog(f, "Error: Continue to delete?","Sync Node not found",JOptionPane.YES_NO_OPTION)!=JOptionPane.YES_OPTION)
+				return false;
+		}
 		if(getSync())
 		{
-			if(JOptionPane.showConfirmDialog(f, "Delete file '"+node.getFileName()+"'","Delete Node",JOptionPane.YES_NO_OPTION)!=JOptionPane.YES_OPTION)
-				return false;
-			if(node.isDirectory())
-			{
-				if(JOptionPane.showConfirmDialog(f, "This will delete this directory and all children.  Confirm.","Delete Directory",JOptionPane.YES_NO_OPTION)!=JOptionPane.YES_OPTION)
-					return false;
-			}
-			if(!backUp(node,false))
-				return false;
-			final RemoteNode zeroZeroIndexFile = getMy00INDEX(node);
-			if((zeroZeroIndexFile==null)
-			&&(getManageIndexes())
-			&&(!node.getFileName().equalsIgnoreCase("00index"))
-			&&(JOptionPane.showConfirmDialog(f, "00INDEX file not found.\nContinue to delete?","00INDEX not found",JOptionPane.YES_NO_OPTION)!=JOptionPane.YES_OPTION))
-				return false;
-
-			if((zeroZeroIndexFile!=null)&&(getManageIndexes())&&(!node.getFileName().equalsIgnoreCase("00index")))
-			{
-				if(!removeFromBoth00INDEX(zeroZeroIndexFile, node, null, false))
-					return false;
-			}
-			boolean response=unsafeDeleteRemoteFile(this,node);
-			if(!response)
-			{
-				if(JOptionPane.showConfirmDialog(f, "Error: Continue to delete?","Sync Node not found",JOptionPane.YES_NO_OPTION)!=JOptionPane.YES_OPTION)
-					return false;
-			}
 			try
 			{
 				for(final RemoteNode otherNode : findSiblings(node))

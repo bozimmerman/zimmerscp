@@ -2,10 +2,15 @@ package com.planet_ink.zimmerscp;
 
 import java.awt.Frame;
 import java.awt.PopupMenu;
+import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.dnd.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 import javax.swing.*;
@@ -14,6 +19,7 @@ import javax.swing.tree.*;
 public abstract class DragDropTree extends JTree implements ActionListener, DropTargetListener
 {
 	private static final long serialVersionUID = 4327399837099558314L;
+	private final DragDropTree me = this;
 	//public final DropTarget dt;
 
 	public TreeNode getSelectedNode()
@@ -67,7 +73,39 @@ public abstract class DragDropTree extends JTree implements ActionListener, Drop
 			public Transferable createTransferable(final JComponent c)
 			{
 				if (c instanceof DragDropTree)
-					return (Transferable) ((DragDropTree) c).getSelectedNode();
+				{
+					if(me.getSelectionModel().getSelectionMode() == TreeSelectionModel.SINGLE_TREE_SELECTION)
+						return (Transferable) ((DragDropTree) c).getSelectedNode();
+					else
+					return new Transferable()
+					{
+						@Override
+						public DataFlavor[] getTransferDataFlavors()
+						{
+							return new DataFlavor[] { DataFlavor.javaFileListFlavor };
+						}
+
+						@Override
+						public boolean isDataFlavorSupported(final DataFlavor flavor)
+						{
+							return flavor.equals(DataFlavor.javaFileListFlavor);
+						}
+
+						@Override
+						public Object getTransferData(final DataFlavor flavor) throws UnsupportedFlavorException, IOException
+						{
+							final List<TreeNode> nodes = new ArrayList<TreeNode>();
+							for(final TreePath path : me.getSelectionPaths())
+							{
+								if(path.getLastPathComponent() instanceof TreeNode)
+									nodes.add((TreeNode)path.getLastPathComponent());
+							}
+							return nodes;
+						}
+
+					};
+				}
+				else
 				if (c instanceof Transferable)
 					return (Transferable) c;
 				return null;
@@ -80,14 +118,21 @@ public abstract class DragDropTree extends JTree implements ActionListener, Drop
 			public boolean canImport(final TransferHandler.TransferSupport t)
 			{
 				if (t.getComponent() instanceof DragDropTree)
-					return ((DragDropTree)t.getComponent()).testNodeImport(t);
+				{
+					final boolean success = ((DragDropTree)t.getComponent()).testNodeImport(t);
+					return success;
+				}
+
 				return false;
 			}
 
 			public boolean importData(final TransferHandler.TransferSupport t)
 			{
 				if (t.getComponent() instanceof DragDropTree)
-					return ((DragDropTree)t.getComponent()).handleNodeImport(t);
+				{
+					final boolean success = ((DragDropTree)t.getComponent()).handleNodeImport(t);
+					return success;
+				}
 				return false;
 			}
 		});

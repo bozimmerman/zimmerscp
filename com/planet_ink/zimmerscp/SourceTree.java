@@ -33,6 +33,7 @@ public class SourceTree extends DragDropTree
 	private LocalDialog	dialog		= null;
 	private PopupMenu	popupMenu	= null;
 	private Frame		f			= null;
+	public DragDropTree me			= this;
 
 	public SourceTree(final String name, final Frame f, final FileNode m)
 	{
@@ -335,6 +336,8 @@ public class SourceTree extends DragDropTree
 							final Object o = t.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
 							if (o instanceof RemoteNode)
 								return true;
+							if (o instanceof FileNode)
+								return true;
 							if (o instanceof List)
 								return ((List)o).size()>0;
 						}
@@ -347,7 +350,7 @@ public class SourceTree extends DragDropTree
 		return false;
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings({ "rawtypes" })
 	protected boolean handleNodeImport(final TransferHandler.TransferSupport t)
 	{
 		if (t.getDropLocation() instanceof JTree.DropLocation)
@@ -360,11 +363,44 @@ public class SourceTree extends DragDropTree
 					try
 					{
 						final Object o = t.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
-						List<RemoteNode> fl = new ArrayList<RemoteNode>();
+						final List<RemoteNode> fl = new ArrayList<RemoteNode>();
 						if (o instanceof RemoteNode)
 							fl.add((RemoteNode) o);
-						else if (o instanceof List)
-							fl = (List) o;
+						else
+						if(o instanceof FileNode)
+						{
+							final FileNode oparent = (FileNode)((FileNode)o).getParent();
+							((FileNode)o).renameTo(new File(node.getFile(), ((FileNode)o).getFileName()));
+							oparent.removeAllChildren();
+							oparent.build(oparent.getFile());
+							node.removeAllChildren();
+							node.build(node.getFile());
+							updateUI();
+							repaint();
+							me.expandPath(location.getPath());
+						}
+						else
+						if (o instanceof List)
+						{
+							for(final Object o1 : (List)o)
+							{
+								if(o1 instanceof RemoteNode)
+									fl.add((RemoteNode)o1);
+								else
+								if(o1 instanceof FileNode)
+								{
+									final FileNode oparent = (FileNode)node.getParent();
+									((FileNode)o1).renameTo(new File(node.getFile(), ((FileNode)o1).getFileName()));
+									oparent.removeAllChildren();
+									oparent.build(oparent.getFile());
+									node.removeAllChildren();
+									node.build(node.getFile());
+									updateUI();
+									repaint();
+									me.expandPath(location.getPath());
+								}
+							}
+						}
 						if (fl.size() > 0)
 							return transferRemoteLocal(fl.iterator().next().getTree(), fl, node);
 					}
