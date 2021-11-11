@@ -658,12 +658,12 @@ public class DestTree extends DragDropTree
 						{
 							if(!otherNode.getConnection().deleteFile(otherNode.getFullName(), false))
 							{
-								if(JOptionPane.showConfirmDialog(f, "Error deleting remote file "+node.getFullName()+". Continue?", "Delete node",JOptionPane.YES_NO_OPTION)!=JOptionPane.YES_OPTION)
+								if(JOptionPane.showConfirmDialog(f, "Error deleting remote file "+otherNode.getFullName()+". Continue?", "Delete node",JOptionPane.YES_NO_OPTION)!=JOptionPane.YES_OPTION)
 									return false;
 							}
 							if(!otherNode.getConnection().sendFile(F.getAbsolutePath(),otherNode.getFullName()))
 							{
-								if(JOptionPane.showConfirmDialog(f, "Error sending remote file "+node.getFullName()+". Continue?", "Send node",JOptionPane.YES_NO_OPTION)!=JOptionPane.YES_OPTION)
+								if(JOptionPane.showConfirmDialog(f, "Error sending remote file "+otherNode.getFullName()+". Continue?", "Send node",JOptionPane.YES_NO_OPTION)!=JOptionPane.YES_OPTION)
 									return false;
 							}
 						}
@@ -1131,6 +1131,8 @@ public class DestTree extends DragDropTree
 		}
 		catch(final Exception e)
 		{
+			System.err.println(e);
+			e.printStackTrace(System.err);
 			JOptionPane.showMessageDialog(f, "Unable to add "+node.getFullName()+"\n to "+zeroZeroIndexFile.getFullName()+"\n"+e.getMessage());
 			return false;
 		}
@@ -1267,7 +1269,7 @@ public class DestTree extends DragDropTree
 				return true;
 			if(fromCopy && (!srcTree.getBackupCopyOvers()))
 				return true;
-			final Vector<RemoteNode> treeUpPath = buildPathToRoot(node);
+			final Vector<RemoteNode> treeUpPath = node.getTree().buildPathToRoot(node);
 			for(int i=treeUpPath.size()-1;i>=1;i--)
 			{
 				final RemoteNode dir=treeUpPath.elementAt(i);
@@ -1293,7 +1295,10 @@ public class DestTree extends DragDropTree
 		}
 		catch(final Exception e)
 		{
-			JOptionPane.showMessageDialog(f, "Unable to backup file to "+F.getAbsolutePath());
+			if(F!=null)
+				JOptionPane.showMessageDialog(f, "Unable to backup file to "+F.getAbsolutePath());
+			else
+				JOptionPane.showMessageDialog(f, "Unable to backup file "+node.getFileName());
 			return false;
 		}
 	}
@@ -1391,7 +1396,7 @@ public class DestTree extends DragDropTree
 	{
 		final RemoteNode root=(RemoteNode)getModel().getRoot();
 		final Vector<RemoteNode> path = new Vector<RemoteNode>();
-		while(node != root)
+		while((node != root)&&(node != null))
 		{
 			path.add(node);
 			node=(RemoteNode)node.getParent();
@@ -1432,7 +1437,7 @@ public class DestTree extends DragDropTree
 				if(inode==null)
 					throw new Exception("Path discovery error in #"+otherTree.num);
 			}
-			if(inode.getFileName().equals(node.getFileName()))
+			if(inode.getFileName().equals(node.getFileName()) || (path.size()==0))
 				otherNodes.add(inode);
 			else
 				throw new Exception("Path discovery error in #"+otherTree.num);

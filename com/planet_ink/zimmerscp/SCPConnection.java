@@ -65,6 +65,18 @@ public class SCPConnection
 		return lastReceivedFile;
 	}
 
+	public static int clearAck(final InputStream in) throws IOException
+	{
+		int x=0;
+		while(in.available()>0)
+		{
+			in.read();
+			x++;
+		}
+		return x;
+
+	}
+
 	/**
 	 *
 	 * @param in
@@ -73,7 +85,11 @@ public class SCPConnection
 	 */
 	private static int checkAck(final InputStream in) throws IOException
 	{
+		final long bitTimeOut = System.currentTimeMillis() + 10;
+		while((in.available()==0)&&(System.currentTimeMillis() < bitTimeOut))
+			try { Thread.sleep(1); } catch (final InterruptedException e) { }
 		final int b = in.read();
+		System.err.println(" response code is "+b);
 		// b may be 0 for success,
 		// 1 for error,
 		// 2 for fatal error,
@@ -85,22 +101,16 @@ public class SCPConnection
 
 		if (b == 1 || b == 2)
 		{
-			final StringBuffer sb = new StringBuffer();
+			final long timeout = System.currentTimeMillis() + 5000;
 			int c;
 			do
 			{
 				c = in.read();
-				sb.append((char) c);
-			}
-			while (c != '\n');
-			if (b == 1)
-			{ // error
-				System.out.print(sb.toString());
-			}
-			if (b == 2)
-			{ // fatal error
-				System.out.print(sb.toString());
-			}
+				if(c != -1)
+					System.err.print(c);
+			} while((c!='\n') && (System.currentTimeMillis() < timeout));
+			if(System.currentTimeMillis() >= timeout)
+				System.err.println("");
 		}
 		return b;
 	}
@@ -118,8 +128,9 @@ public class SCPConnection
 		{
 			connect();
 			String command = "scp -p -t '" + destFilename + "'";
-			final Channel channel = openSession("exec");
-			((ChannelExec) channel).setCommand(command);
+			final Channel channel = openCommand(command);
+			if(channel == null)
+				return false;
 
 			final OutputStream out = channel.getOutputStream();
 			final InputStream in = channel.getInputStream();
@@ -214,14 +225,20 @@ public class SCPConnection
 		{
 			connect();
 			final String command = "rm -"+(recursive?"rf":"f")+" '"+ filename + "'";
-			channel = openSession("exec");
-			((ChannelExec) channel).setCommand(command);
-			channel.connect();
+			channel = openCommand(command);
+			if(channel == null)
+				return false;
 			final InputStream in = channel.getInputStream();
+			channel.connect();
 			try
 			{
 				if (checkAck(in) != 0)
-					return false;
+				{
+					in.close();
+					final String s=this.getFileRow(filename);
+					System.err.println(filename+"->"+s);
+					return s==null;
+				}
 			}
 			finally
 			{
@@ -248,10 +265,11 @@ public class SCPConnection
 		{
 			connect();
 			final String command = "mv '"+oldFilename+"' '"+ newFilename + "'";
-			channel = openSession("exec");
-			((ChannelExec) channel).setCommand(command);
-			channel.connect();
+			channel = openCommand(command);
+			if(channel == null)
+				return false;
 			final InputStream in = channel.getInputStream();
+			channel.connect();
 			try
 			{
 				if (checkAck(in) != 0)
@@ -282,10 +300,11 @@ public class SCPConnection
 		{
 			connect();
 			final String command = "ln -s '"+filePath+"' '"+ newLinkPath + "'";
-			channel = openSession("exec");
-			((ChannelExec) channel).setCommand(command);
-			channel.connect();
+			channel = openCommand(command);
+			if(channel == null)
+				return false;
 			final InputStream in = channel.getInputStream();
+			channel.connect();
 			try
 			{
 				if (checkAck(in) != 0)
@@ -316,10 +335,11 @@ public class SCPConnection
 		{
 			connect();
 			final String command = "mkdir '"+ filename + "'";
-			channel = openSession("exec");
-			((ChannelExec) channel).setCommand(command);
-			channel.connect();
+			channel = openCommand(command);
+			if(channel == null)
+				return false;
 			final InputStream in = channel.getInputStream();
+			channel.connect();
 			try
 			{
 				if (checkAck(in) != 0)
@@ -366,6 +386,69 @@ public class SCPConnection
 		}
 	}
 
+	public Channel openCommand(final String command) throws JSchException
+	{
+		final Channel channel = openSession("exec");
+		if(channel == null)
+			return null;
+		System.err.println(command);
+		((ChannelExec) channel).setCommand(command);
+		return channel;
+	}
+
+	public String getFileRow(String remoteDirectory) throws IOException, JSchException
+	{
+		try
+		{
+			connect();
+			remoteDirectory = remoteDirectory.trim();
+			if (remoteDirectory.endsWith("/"))
+				remoteDirectory = remoteDirectory.substring(0, remoteDirectory.length() - 1);
+			if (remoteDirectory.endsWith("\\"))
+				remoteDirectory = remoteDirectory.substring(0, remoteDirectory.length() - 1);
+			final String command = "ls -lAU --time-style=long-iso '" + remoteDirectory + "'";
+			if(!remoteDirectory.endsWith("/"))
+				remoteDirectory += "/";
+			final Channel channel = openCommand(command);
+			if(channel == null)
+				return null;
+
+			final ByteArrayOutputStream bout = new ByteArrayOutputStream();
+			try(final InputStream in = channel.getInputStream())
+			{
+				channel.connect();
+
+				final byte[] buf = new byte[1024];
+				int x = 1;
+				while (x > 0)
+				{
+					x = in.read(buf, 0, 1024);
+					if (x > 0)
+						bout.write(buf, 0, x);
+				}
+				in.close();
+			}
+			channel.disconnect();
+			final BufferedReader br = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(bout.toByteArray())));
+			String s = br.readLine();
+			if(s!=null)
+			{
+				if (s.length() == 0)
+					s = br.readLine();
+				if ((s!=null)&&(s.length()>0)&&(!s.startsWith("total")))
+					return s;
+				s = br.readLine();
+				if ((s!=null)&&(s.length() == 0))
+					s = br.readLine();
+			}
+			return s;
+		}
+		finally
+		{
+
+		}
+	}
+
 	/**
 	 *
 	 * @param remoteDirectory
@@ -384,8 +467,9 @@ public class SCPConnection
 			final String command = "ls -lAU --time-style=long-iso '" + remoteDirectory + "'";
 			if(!remoteDirectory.endsWith("/"))
 				remoteDirectory += "/";
-			final Channel channel = openSession("exec");
-			((ChannelExec) channel).setCommand(command);
+			final Channel channel = openCommand(command);
+			if(channel == null)
+				return new Vector<RemoteNode>(1);
 
 			final InputStream in = channel.getInputStream();
 
@@ -481,8 +565,9 @@ public class SCPConnection
 		{
 			connect();
 			final String command = "scp -f '" + sourceFilename + "'";
-			final Channel channel = openSession("exec");
-			((ChannelExec) channel).setCommand(command);
+			final Channel channel = openCommand(command);
+			if(channel == null)
+				return false;
 
 			final OutputStream out = channel.getOutputStream();
 			final InputStream in = channel.getInputStream();

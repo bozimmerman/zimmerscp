@@ -287,7 +287,7 @@ public class zimmerscp extends javax.swing.JFrame implements MouseListener, Wind
 				northPanel.add(jTreeTextS, BorderLayout.CENTER);
 				final JPanel northnorthPanel = new JPanel();
 				northnorthPanel.setLayout(new java.awt.BorderLayout());
-				final JLabel jTreeTextType = new JLabel("Local Window");
+				final JLabel jTreeTextType = new JLabel("Local Filesystem");
 				jTreeTextType.setOpaque(true);
 				jTreeTextType.setBackground(new Color(255, 255, 140));
 				northnorthPanel.add(jTreeTextType, BorderLayout.CENTER);
@@ -376,6 +376,7 @@ public class zimmerscp extends javax.swing.JFrame implements MouseListener, Wind
 						allSettings.add(p);
 						for(final ListDataListener l : listener)
 							l.contentsChanged(new ListDataEvent(jSettingsListBox, ListDataEvent.INTERVAL_ADDED, allSettings.size()-1,allSettings.size()));
+						jSettingsListBox.setSelectedItem(jSettingsTextField.getText());
 					}
 				});
 				icon = new ImageIcon(this.getClass().getResource("deleteicon.png"));
