@@ -17,17 +17,17 @@ import javax.swing.JTextField;
 
 public class RemoteFileInfoDialog extends JDialog implements MouseListener
 {
-	private static final long serialVersionUID = 4616634940742071921L;
-	private JButton ok = new JButton("Ok");
-	private static final int DEFAULT_WIDTH = 200;
+	private static final long	serialVersionUID	= 4616634940742071921L;
+	private final JButton		ok					= new JButton("Ok");
+	private static final int	DEFAULT_WIDTH		= 200;
 
-	public RemoteFileInfoDialog(Frame frame, RemoteNode node)
+	public RemoteFileInfoDialog(final Frame frame, final RemoteNode node)
 	{
 		super(frame, "Remote file: " + node);
 		JLabel label;
 		JTextField field;
 		setLocationRelativeTo(this); // center on screen
-		GridBagConstraints c = new GridBagConstraints();
+		final GridBagConstraints c = new GridBagConstraints();
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.gridx = 0;
 		c.gridy = 0;
@@ -66,8 +66,8 @@ public class RemoteFileInfoDialog extends JDialog implements MouseListener
 		getContentPane().add(new JLabel("Modified:"), c);
 		c.gridx = 1;
 		c.gridwidth = 2;
-		SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd'T'HH:mm:ss.SSSZ");
-		label = new JLabel(format.format(node.getTimestamp()));
+		final SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd'T'HH:mm:ss.SSSZ");
+		label = new JLabel(format.format(Long.valueOf(node.getTimestamp())));
 		label.setOpaque(true);
 		label.setBackground(Color.white);
 		label.setMinimumSize(new Dimension(DEFAULT_WIDTH, 21));
@@ -101,7 +101,7 @@ public class RemoteFileInfoDialog extends JDialog implements MouseListener
 		label.setMinimumSize(new Dimension(DEFAULT_WIDTH, 21));
 		label.setPreferredSize(new Dimension(DEFAULT_WIDTH, 21));
 		getContentPane().add(label, c);
-		
+
 		c.gridy = 5;
 		c.gridx = 0;
 		c.gridwidth = 1;
@@ -114,7 +114,7 @@ public class RemoteFileInfoDialog extends JDialog implements MouseListener
 		label.setMinimumSize(new Dimension(DEFAULT_WIDTH, 21));
 		label.setPreferredSize(new Dimension(DEFAULT_WIDTH, 21));
 		getContentPane().add(label, c);
-		
+
 		ok.addMouseListener(this);
 		c.gridy = 6;
 		c.gridx = 1;
@@ -126,7 +126,7 @@ public class RemoteFileInfoDialog extends JDialog implements MouseListener
 		setLocationRelativeTo(frame);
 	}
 
-	public void mouseClicked(MouseEvent arg0)
+	public void mouseClicked(final MouseEvent arg0)
 	{
 		if (arg0.getComponent() == ok)
 		{
@@ -134,19 +134,19 @@ public class RemoteFileInfoDialog extends JDialog implements MouseListener
 		}
 	}
 
-	public void mouseEntered(MouseEvent arg0)
+	public void mouseEntered(final MouseEvent arg0)
 	{
 	}
 
-	public void mouseExited(MouseEvent arg0)
+	public void mouseExited(final MouseEvent arg0)
 	{
 	}
 
-	public void mousePressed(MouseEvent arg0)
+	public void mousePressed(final MouseEvent arg0)
 	{
 	}
 
-	public void mouseReleased(MouseEvent arg0)
+	public void mouseReleased(final MouseEvent arg0)
 	{
 	}
 }

@@ -17,17 +17,17 @@ import javax.swing.JTextField;
 
 public class FileInfoDialog extends JDialog implements MouseListener
 {
-	private static final long serialVersionUID = 4616634940742071922L;
-	private JButton ok = new JButton("Ok");
-	private static final int DEFAULT_WIDTH = 200;
+	private static final long	serialVersionUID	= 4616634940742071922L;
+	private final JButton		ok					= new JButton("Ok");
+	private static final int	DEFAULT_WIDTH		= 200;
 
-	public FileInfoDialog(Frame frame, FileNode node)
+	public FileInfoDialog(final Frame frame, final FileNode node)
 	{
 		super(frame, "Local file: " + node.getFile().getName());
 		JLabel label;
 		JTextField field;
 		setLocationRelativeTo(this); // center on screen
-		GridBagConstraints c = new GridBagConstraints();
+		final GridBagConstraints c = new GridBagConstraints();
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.gridx = 0;
 		c.gridy = 0;
@@ -66,8 +66,8 @@ public class FileInfoDialog extends JDialog implements MouseListener
 		getContentPane().add(new JLabel("Modified:"), c);
 		c.gridx = 1;
 		c.gridwidth = 2;
-		SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd'T'HH:mm:ss.SSSZ");
-		label = new JLabel(format.format(node.getFile().lastModified()));
+		final SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd'T'HH:mm:ss.SSSZ");
+		label = new JLabel(format.format(Long.valueOf(node.getFile().lastModified())));
 		label.setOpaque(true);
 		label.setBackground(Color.white);
 		label.setMinimumSize(new Dimension(DEFAULT_WIDTH, 21));
@@ -98,7 +98,7 @@ public class FileInfoDialog extends JDialog implements MouseListener
 		setLocationRelativeTo(frame);
 	}
 
-	public void mouseClicked(MouseEvent arg0)
+	public void mouseClicked(final MouseEvent arg0)
 	{
 		if (arg0.getComponent() == ok)
 		{
@@ -106,19 +106,19 @@ public class FileInfoDialog extends JDialog implements MouseListener
 		}
 	}
 
-	public void mouseEntered(MouseEvent arg0)
+	public void mouseEntered(final MouseEvent arg0)
 	{
 	}
 
-	public void mouseExited(MouseEvent arg0)
+	public void mouseExited(final MouseEvent arg0)
 	{
 	}
 
-	public void mousePressed(MouseEvent arg0)
+	public void mousePressed(final MouseEvent arg0)
 	{
 	}
 
-	public void mouseReleased(MouseEvent arg0)
+	public void mouseReleased(final MouseEvent arg0)
 	{
 	}
 }

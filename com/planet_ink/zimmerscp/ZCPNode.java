@@ -15,77 +15,76 @@ public abstract class ZCPNode<T extends ZCPNode<T>> extends DefaultMutableTreeNo
 	private static final long serialVersionUID = 1373888130366843583L;
 
 	@SuppressWarnings("unchecked")
-	public T findChildNode(String name, boolean nameIsDirectory)
+	public T findChildNode(final String name, final boolean nameIsDirectory)
 	{
-		for(Enumeration<DefaultMutableTreeNode> e=children(); e.hasMoreElements();)
+		for(final Enumeration<DefaultMutableTreeNode> e=children(); e.hasMoreElements();)
 		{
-			T fn = (T)e.nextElement();
+			final T fn = (T)e.nextElement();
 			if((fn.isDirectory()== nameIsDirectory)
 			&& name.equals(fn.getFileName()))
 				return fn;
 		}
 		return null;
 	}
-	
+
 	@SuppressWarnings("unchecked")
-	public T findChildNodeIgnoreCase(String name)
+	public T findChildNodeIgnoreCase(final String name)
 	{
-		for(Enumeration<DefaultMutableTreeNode> e=children(); e.hasMoreElements();)
+		for(final Enumeration<DefaultMutableTreeNode> e=children(); e.hasMoreElements();)
 		{
-			T fn = (T)e.nextElement();
+			final T fn = (T)e.nextElement();
 			if(name.equalsIgnoreCase(fn.getFileName()))
 				return fn;
 		}
 		return null;
 	}
-	
+
 	@SuppressWarnings("unchecked")
-	public T findChildNode(String name)
+	public T findChildNode(final String name)
 	{
-		for(Enumeration<DefaultMutableTreeNode> e=children(); e.hasMoreElements();)
+		for(final Enumeration<DefaultMutableTreeNode> e=children(); e.hasMoreElements();)
 		{
-			T fn = (T)e.nextElement();
+			final T fn = (T)e.nextElement();
 			if(name.equals(fn.getFileName()))
 				return fn;
 		}
 		return null;
 	}
-	
+
 	@SuppressWarnings("unchecked")
-	public T findChildNodeIgnoreCase(String name, boolean nameIsDirectory)
+	public T findChildNodeIgnoreCase(final String name, final boolean nameIsDirectory)
 	{
-		for(Enumeration<DefaultMutableTreeNode> e=children(); e.hasMoreElements();)
+		for(final Enumeration<DefaultMutableTreeNode> e=children(); e.hasMoreElements();)
 		{
-			T fn = (T)e.nextElement();
+			final T fn = (T)e.nextElement();
 			if((fn.isDirectory()== nameIsDirectory)
 			&&(name.equalsIgnoreCase(fn.getFileName())))
 				return fn;
 		}
 		return null;
 	}
-	
-	@SuppressWarnings("unchecked")
-	public void add(MutableTreeNode node)
+
+	public void add(final MutableTreeNode node)
 	{
 		synchronized(this)
 		{
 			super.add(node);
 		}
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public void sort()
 	{
 		if(children != null)
 			Collections.sort(children);
 	}
-	
+
 	public abstract String getFileName();
 	public abstract boolean isDirectory();
 	public abstract long getTimestamp();
 	public abstract long getSize();
-	
-	public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException, IOException
+
+	public Object getTransferData(final DataFlavor flavor) throws UnsupportedFlavorException, IOException
 	{
 		return this;
 	}
@@ -95,16 +94,16 @@ public abstract class ZCPNode<T extends ZCPNode<T>> extends DefaultMutableTreeNo
 		return new DataFlavor[] { DataFlavor.javaFileListFlavor };
 	}
 
-	public boolean isDataFlavorSupported(DataFlavor flavor)
+	public boolean isDataFlavorSupported(final DataFlavor flavor)
 	{
 		return DataFlavor.javaFileListFlavor == flavor;
 	}
 
-	public int compareTo(ZCPNode<T> arg0)
+	public int compareTo(final ZCPNode<T> arg0)
 	{
 		if(isDirectory()!=arg0.isDirectory())
 			return isDirectory()?-1:1;
 		return toString().compareToIgnoreCase(arg0.toString());
 	}
-	
+
 }

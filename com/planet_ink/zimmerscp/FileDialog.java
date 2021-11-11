@@ -8,21 +8,21 @@ import javax.swing.*;
 
 public class FileDialog extends JDialog implements KeyListener, WindowListener
 {
-	private static final long serialVersionUID = 4616634940742071923L;
-	private static final int DIALOG_WIDTH = 600;
-	private static final int DIALOG_HEIGHT = 600;
-	private JTextField filenameField = new JTextField();
-	private JTextArea textField = new JTextArea();
-	private EDIT_TYPE edit;
-	private static final String ZEROES = "000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
-	private static final int ADDRESS_SIZE = 10;
-	private boolean dirty = false;
-	private Frame f;
-	private File F;
-	private String lastSearch="";
-	private String cr="\n";
+	private static final long	serialVersionUID	= 4616634940742071923L;
+	private static final int	DIALOG_WIDTH		= 600;
+	private static final int	DIALOG_HEIGHT		= 600;
+	private final JTextField	filenameField		= new JTextField();
+	private JTextArea			textField			= new JTextArea();
+	private EDIT_TYPE			edit;
+	private static final String	ZEROES				= "000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
+	private static final int	ADDRESS_SIZE		= 10;
+	private boolean				dirty				= false;
+	private final Frame			f;
+	private final File			F;
+	private String				lastSearch			= "";
+	private String				cr					= "\n";
 
-	public FileDialog(Frame f, String filename, String preFormattedText, EDIT_TYPE edit)
+	public FileDialog(final Frame f, final String filename, final String preFormattedText, final EDIT_TYPE edit)
 	{
 		super(f, (edit != EDIT_TYPE.READ_ONLY)?"ZimmerSCP Editor":"ZimmerSCP Viewer");
 		this.f=f;
@@ -31,26 +31,26 @@ public class FileDialog extends JDialog implements KeyListener, WindowListener
 		init(filename, preFormattedText, edit);
 	}
 
-	public FileDialog(Frame f, String filename, File F, boolean edit)
+	public FileDialog(final Frame f, final String filename, final File F, final boolean edit)
 	{
 		super(f, (edit)?"ZimmerSCP Editor":"ZimmerSCP Viewer");
 		this.f=f;
 		this.F=F;
 		this.addWindowListener(this);
-		boolean isTextFile = isTextFile(F);
+		final boolean isTextFile = isTextFile(F);
 		EDIT_TYPE newEdit = EDIT_TYPE.READ_ONLY;
 		if (edit)
 			newEdit = isTextFile ? EDIT_TYPE.EDIT_TEXT : EDIT_TYPE.EDIT_BINARY;
-		String preFormattedText = getStringifiedDataFromFile(F);
+		final String preFormattedText = getStringifiedDataFromFile(F);
 		init(filename, preFormattedText, newEdit);
 	}
-	
-	private void init(String filename, String preFormattedText, EDIT_TYPE edit)
+
+	private void init(final String filename, final String preFormattedText, final EDIT_TYPE edit)
 	{
 		this.edit = edit;
 		this.setModal(true);
 		setLocationRelativeTo(this); // center on screen
-		boolean editFlag = edit != EDIT_TYPE.READ_ONLY;
+		final boolean editFlag = edit != EDIT_TYPE.READ_ONLY;
 		getContentPane().setLayout(new BorderLayout());
 		if(editFlag)
 		{
@@ -69,7 +69,7 @@ public class FileDialog extends JDialog implements KeyListener, WindowListener
 		textField.setText(preFormattedText);
 		textField.addKeyListener(this);
 		textField.setFont(new Font("Monospaced", Font.PLAIN, 14));
-		JScrollPane jScrollpaneS = new JScrollPane(textField);
+		final JScrollPane jScrollpaneS = new JScrollPane(textField);
 		jScrollpaneS.setPreferredSize(new java.awt.Dimension(DIALOG_WIDTH, DIALOG_HEIGHT));
 		jScrollpaneS.addKeyListener(this);
 		getContentPane().add(jScrollpaneS, BorderLayout.CENTER);
@@ -78,7 +78,7 @@ public class FileDialog extends JDialog implements KeyListener, WindowListener
 	}
 
 	@Override
-	public void keyPressed(KeyEvent e)
+	public void keyPressed(final KeyEvent e)
 	{
 		if(e.isControlDown() && ((e.getKeyCode() == KeyEvent.VK_F)||(e.getKeyCode() == KeyEvent.VK_N)))
 		{
@@ -96,7 +96,7 @@ public class FileDialog extends JDialog implements KeyListener, WindowListener
 			}
 			return;
 		}
-		
+
 		if (edit == EDIT_TYPE.READ_ONLY)
 		{
 			if (e.getKeyCode() ==  KeyEvent.VK_ESCAPE)
@@ -126,12 +126,12 @@ public class FileDialog extends JDialog implements KeyListener, WindowListener
 	}
 
 	@Override
-	public void keyReleased(KeyEvent e)
+	public void keyReleased(final KeyEvent e)
 	{
 	}
 
 	@Override
-	public void keyTyped(KeyEvent e)
+	public void keyTyped(final KeyEvent e)
 	{
 		if (edit == EDIT_TYPE.EDIT_BINARY)
 		{
@@ -144,20 +144,20 @@ public class FileDialog extends JDialog implements KeyListener, WindowListener
 	}
 
 	public boolean isDirty() { return dirty;}
-	
-	private static int countHexes(String lineWithoutAddress)
+
+	private static int countHexes(final String lineWithoutAddress)
 	{
 		int ct = 0;
 		while((lineWithoutAddress.length()-(ct*3)-1)>ct)
 			ct++;
 		return ct;
 	}
-	
-	private boolean isTextFile(File F)
+
+	private static boolean isTextFile(final File F)
 	{
 		try
 		{
-			FileInputStream fio = new FileInputStream(F);
+			final FileInputStream fio = new FileInputStream(F);
 			long length = F.length();
 			if (length > 2048)
 				length = 2048;
@@ -169,23 +169,23 @@ public class FileDialog extends JDialog implements KeyListener, WindowListener
 				return false;
 			return true;
 		}
-		catch (Exception e)
+		catch (final Exception e)
 		{
 			return true;
 		}
 	}
 
-	private String padWithZeros(String s, int padSize)
+	private static String padWithZeros(final String s, final int padSize)
 	{
 		if (s.length() >= padSize)
 			return s.substring(s.length() - 2);
-		int numZeroes = padSize - s.length();
+		final int numZeroes = padSize - s.length();
 		return ZEROES.substring(0, numZeroes) + s;
 	}
 
-	protected String getStringifiedDataFromFile(File F)
+	protected String getStringifiedDataFromFile(final File F)
 	{
-		StringBuffer buf = new StringBuffer("");
+		final StringBuffer buf = new StringBuffer("");
 		try
 		{
 			BufferedReader br = new BufferedReader(new FileReader(F));
@@ -193,7 +193,7 @@ public class FileDialog extends JDialog implements KeyListener, WindowListener
 			{
 				br.close();
 				cr="\n";
-				FileReader fr=new FileReader(F);
+				final FileReader fr=new FileReader(F);
 				int c=fr.read();
 				while(c>=0)
 				{
@@ -219,12 +219,12 @@ public class FileDialog extends JDialog implements KeyListener, WindowListener
 			}
 			else
 			{
-				FileInputStream fio = new FileInputStream(F);
+				final FileInputStream fio = new FileInputStream(F);
 				int c = fio.read();
 				long length = F.length();
 				long ctr = 0;
 				long addr = 0;
-				StringBuffer text = new StringBuffer("");
+				final StringBuffer text = new StringBuffer("");
 				while ((c >= 0) && ((length--) > 0))
 				{
 					if (ctr == 0)
@@ -250,7 +250,7 @@ public class FileDialog extends JDialog implements KeyListener, WindowListener
 				fio.close();
 			}
 		}
-		catch (Exception e)
+		catch (final Exception e)
 		{
 			return "File read error: " + e.getMessage() + "\n";
 		}
@@ -263,27 +263,27 @@ public class FileDialog extends JDialog implements KeyListener, WindowListener
 			return textField.getText().getBytes();
 		else
 		{
-			ByteArrayOutputStream bout = new ByteArrayOutputStream();
+			final ByteArrayOutputStream bout = new ByteArrayOutputStream();
 			try
 			{
-				BufferedReader br=new BufferedReader(new InputStreamReader(new ByteArrayInputStream(textField.getText().getBytes())));
+				final BufferedReader br=new BufferedReader(new InputStreamReader(new ByteArrayInputStream(textField.getText().getBytes())));
 				String line = br.readLine();
 				while(line!=null)
 				{
 					line=line.substring(ADDRESS_SIZE);
 					if(line.length()>1)
 					{
-						int numHexes = countHexes(line);
+						final int numHexes = countHexes(line);
 						for(int i=0;i<numHexes;i++)
 						{
-							String hex=line.substring((i*3),(i*3)+3).trim();
+							final String hex=line.substring((i*3),(i*3)+3).trim();
 							bout.write(Integer.parseInt(hex, 16));
 						}
 					}
 					line = br.readLine();
 				}
 			}
-			catch (Exception e)
+			catch (final Exception e)
 			{
 				e.printStackTrace();
 			}
@@ -295,12 +295,12 @@ public class FileDialog extends JDialog implements KeyListener, WindowListener
 	{
 		READ_ONLY, EDIT_TEXT, EDIT_BINARY
 	}
-	
+
 	private static class JBinaryTextArea extends JTextArea
 	{
 		private static final long serialVersionUID = -5734252932744064911L;
 
-		public void processKeyEvent(KeyEvent e)
+		public void processKeyEvent(final KeyEvent e)
 		{
 			if (e.getKeyCode() ==  KeyEvent.VK_ENTER)
 				return;
@@ -311,7 +311,7 @@ public class FileDialog extends JDialog implements KeyListener, WindowListener
 				int selection=getSelectionStart();
 				if(getSelectionEnd()>selection+1)
 					return;
-				String s = getText();
+				final String s = getText();
 				while((selection>=0)&&(s.charAt(selection)!='\n'))
 				{
 					selection--;
@@ -324,25 +324,25 @@ public class FileDialog extends JDialog implements KeyListener, WindowListener
 				int endPos=selection;
 				while((endPos<s.length())&&(s.charAt(endPos)!='\n'))
 					endPos++;
-				String line=s.substring(selection,endPos);
-				int numCurrHexes = countHexes(line.substring(ADDRESS_SIZE));
-				int charDivider = ADDRESS_SIZE + (numCurrHexes*3);
+				final String line=s.substring(selection,endPos);
+				final int numCurrHexes = countHexes(line.substring(ADDRESS_SIZE));
+				final int charDivider = ADDRESS_SIZE + (numCurrHexes*3);
 				if(relpos > charDivider)
 				{
 					return;
 					/*
 					if(e.getKeyCode()==KeyEvent.VK_BACK_SPACE)
 					{
-						
+
 					}
 					else
 					if(e.getKeyCode()==KeyEvent.VK_DELETE)
 					{
-						
+
 					}
 					else
 					{
-						
+
 					}
 					super.processKeyEvent(e);
 					*/
@@ -373,7 +373,7 @@ public class FileDialog extends JDialog implements KeyListener, WindowListener
 							this.setSelectionEnd(this.getSelectionEnd()+1);
 							selection++;
 						}
-						KeyEvent k=new KeyEvent(this, KeyEvent.KEY_PRESSED,System.currentTimeMillis(),0, KeyEvent.VK_DELETE,(char)127);
+						final KeyEvent k=new KeyEvent(this, KeyEvent.KEY_PRESSED,System.currentTimeMillis(),0, KeyEvent.VK_DELETE,(char)127);
 						super.processKeyEvent(k);
 					}
 					super.processKeyEvent(e);
@@ -402,12 +402,12 @@ public class FileDialog extends JDialog implements KeyListener, WindowListener
 		{
 			try
 			{
-				byte[] bout = getBytes();
-				FileOutputStream fo = new FileOutputStream(F);
+				final byte[] bout = getBytes();
+				final FileOutputStream fo = new FileOutputStream(F);
 				fo.write(bout);
 				fo.close();
 			}
-			catch(Exception ex)
+			catch(final Exception ex)
 			{
 				JOptionPane.showMessageDialog(f,"Unable to save "+F.getAbsolutePath()+"\n"+ex.getMessage());
 				dirty=false; // prevent any uploads
@@ -417,8 +417,8 @@ public class FileDialog extends JDialog implements KeyListener, WindowListener
 		{
 			try
 			{
-				BufferedReader br = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(textField.getText().getBytes())));
-				StringBuffer buf=new StringBuffer("");
+				final BufferedReader br = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(textField.getText().getBytes())));
+				final StringBuffer buf=new StringBuffer("");
 				String s = br.readLine();
 				while (s != null)
 				{
@@ -426,11 +426,11 @@ public class FileDialog extends JDialog implements KeyListener, WindowListener
 					s = br.readLine();
 				}
 				br.close();
-				FileOutputStream fo = new FileOutputStream(F);
+				final FileOutputStream fo = new FileOutputStream(F);
 				fo.write(buf.toString().getBytes());
 				fo.close();
 			}
-			catch(Exception ex)
+			catch(final Exception ex)
 			{
 				JOptionPane.showMessageDialog(f,"Unable to save "+F.getAbsolutePath()+"\n"+ex.getMessage());
 				dirty=false; // prevent any uploads
@@ -438,34 +438,34 @@ public class FileDialog extends JDialog implements KeyListener, WindowListener
 		}
 		this.dispose();
 	}
-		
-	
-	public void windowActivated(WindowEvent arg0)
+
+
+	public void windowActivated(final WindowEvent arg0)
 	{
 	}
 
-	public void windowClosing(WindowEvent arg0)
+	public void windowClosing(final WindowEvent arg0)
 	{
 		closing();
 	}
 
-	public void windowDeactivated(WindowEvent arg0)
+	public void windowDeactivated(final WindowEvent arg0)
 	{
 	}
 
-	public void windowDeiconified(WindowEvent arg0)
+	public void windowDeiconified(final WindowEvent arg0)
 	{
 	}
 
-	public void windowIconified(WindowEvent arg0)
+	public void windowIconified(final WindowEvent arg0)
 	{
 	}
 
-	public void windowOpened(WindowEvent arg0)
+	public void windowOpened(final WindowEvent arg0)
 	{
 	}
 
-	public void windowClosed(WindowEvent arg0)
+	public void windowClosed(final WindowEvent arg0)
 	{
 	}
 }

@@ -3,27 +3,29 @@ package com.planet_ink.zimmerscp;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.Hashtable;
+import java.util.Map;
 
 import javax.swing.*;
 
 public class LocalDialog extends JDialog implements MouseListener
 {
-	private static final long serialVersionUID = 4616634940742071923L;
-	private static final int DIALOG_WIDTH = 200;
-	private JTextField rootField = new JTextField();
-	private JTextField backupField = new JTextField();
-	private JCheckBox backup00INDEXBox = new JCheckBox();
-	private JCheckBox backupCopyOvers = new JCheckBox();
-	private JButton ok = new JButton("Ok");
-	private JButton cancel = new JButton("Cancel");
-	private Hashtable<JComponent, String> cache = new Hashtable<JComponent, String>();
-	private boolean cancelled = false;
+	private static final long	serialVersionUID	= 4616634940742071923L;
+	private static final int	DIALOG_WIDTH		= 200;
+	private final JTextField	rootField			= new JTextField();
+	private final JTextField	backupField			= new JTextField();
+	private final JCheckBox		backup00INDEXBox	= new JCheckBox();
+	private final JCheckBox		backupCopyOvers		= new JCheckBox();
+	private final JButton		ok					= new JButton("Ok");
+	private final JButton		cancel				= new JButton("Cancel");
+	private boolean				cancelled			= false;
 
-	public LocalDialog(Frame f)
+	private final Map<JComponent, String> cache = new Hashtable<JComponent, String>();
+
+	public LocalDialog(final Frame f)
 	{
 		super(f, "Enter local directory information");
 		setLocationRelativeTo(this); // center on screen
-		GridBagConstraints c = new GridBagConstraints();
+		final GridBagConstraints c = new GridBagConstraints();
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.gridx = 0;
 		c.gridy = 0;
@@ -91,12 +93,12 @@ public class LocalDialog extends JDialog implements MouseListener
 
 	public boolean getBackupIndexes()
 	{
-		return Boolean.valueOf(cache.get(backup00INDEXBox));
+		return Boolean.valueOf(cache.get(backup00INDEXBox)).booleanValue();
 	}
 
 	public boolean getBackupCopyOvers()
 	{
-		return Boolean.valueOf(cache.get(backupCopyOvers));
+		return Boolean.valueOf(cache.get(backupCopyOvers)).booleanValue();
 	}
 
 	public boolean wasCancelled()
@@ -104,7 +106,7 @@ public class LocalDialog extends JDialog implements MouseListener
 		return cancelled;
 	}
 
-	public void fill(String rootDir, String backupDir, boolean backupIndexes, boolean backupCopies)
+	public void fill(final String rootDir, final String backupDir, final boolean backupIndexes, final boolean backupCopies)
 	{
 		rootField.setText(rootDir);
 		backupField.setText(backupDir);
@@ -116,14 +118,14 @@ public class LocalDialog extends JDialog implements MouseListener
 		cache.put(backupCopyOvers, String.valueOf(backupCopies));
 	}
 
-	public void mouseClicked(MouseEvent arg0)
+	public void mouseClicked(final MouseEvent arg0)
 	{
 		if (arg0.getComponent() == cancel)
 		{
 			rootField.setText(cache.get(rootField));
 			backupField.setText(cache.get(backupField));
-			backup00INDEXBox.setSelected(Boolean.valueOf(cache.get(backup00INDEXBox)));
-			backupCopyOvers.setSelected(Boolean.valueOf(cache.get(backupCopyOvers)));
+			backup00INDEXBox.setSelected(Boolean.valueOf(cache.get(backup00INDEXBox)).booleanValue());
+			backupCopyOvers.setSelected(Boolean.valueOf(cache.get(backupCopyOvers)).booleanValue());
 			cancelled = true;
 			this.setVisible(false);
 		}
@@ -143,26 +145,26 @@ public class LocalDialog extends JDialog implements MouseListener
 		}
 	}
 
-	public void setVisible(boolean truefalse)
+	public void setVisible(final boolean truefalse)
 	{
 		if (truefalse)
 			cancelled = true;
 		super.setVisible(truefalse);
 	}
 
-	public void mouseEntered(MouseEvent arg0)
+	public void mouseEntered(final MouseEvent arg0)
 	{
 	}
 
-	public void mouseExited(MouseEvent arg0)
+	public void mouseExited(final MouseEvent arg0)
 	{
 	}
 
-	public void mousePressed(MouseEvent arg0)
+	public void mousePressed(final MouseEvent arg0)
 	{
 	}
 
-	public void mouseReleased(MouseEvent arg0)
+	public void mouseReleased(final MouseEvent arg0)
 	{
 	}
 }

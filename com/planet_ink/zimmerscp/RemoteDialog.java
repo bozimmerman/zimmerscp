@@ -9,25 +9,26 @@ import javax.swing.*;
 
 public class RemoteDialog extends JDialog implements MouseListener
 {
-	private static final long serialVersionUID = 4616634940742071923L;
-	private static final int DIALOG_WIDTH = 200;
-	private JTextField hostField = new JTextField();
-	private JTextField userField = new JTextField();
-	private JTextField passwordField = new JTextField();
-	private JTextField rootField = new JTextField();
-	private JCheckBox manageIndexBox = new JCheckBox();
-	private JCheckBox manageSyncBox = new JCheckBox();
-	private JCheckBox create00INDEXBox = new JCheckBox();
-	private JButton ok = new JButton("Ok");
-	private JButton cancel = new JButton("Cancel");
-	private Hashtable<JComponent, String> cache = new Hashtable<JComponent, String>();
-	private boolean cancelled = false;
+	private static final long	serialVersionUID	= 4616634940742071923L;
+	private static final int	DIALOG_WIDTH		= 200;
+	private final JTextField	hostField			= new JTextField();
+	private final JTextField	userField			= new JTextField();
+	private final JTextField	passwordField		= new JTextField();
+	private final JTextField	rootField			= new JTextField();
+	private final JCheckBox		manageIndexBox		= new JCheckBox();
+	private final JCheckBox		manageSyncBox		= new JCheckBox();
+	private final JCheckBox		create00INDEXBox	= new JCheckBox();
+	private final JButton		ok					= new JButton("Ok");
+	private final JButton		cancel				= new JButton("Cancel");
+	private boolean				cancelled			= false;
 
-	public RemoteDialog(Frame f)
+	private final Hashtable<JComponent, String> cache = new Hashtable<JComponent, String>();
+
+	public RemoteDialog(final Frame f)
 	{
 		super(f, "Enter remote connection information");
 		setLocationRelativeTo(this); // center on screen
-		GridBagConstraints c = new GridBagConstraints();
+		final GridBagConstraints c = new GridBagConstraints();
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.gridx = 0;
 		c.gridy = 0;
@@ -94,7 +95,7 @@ public class RemoteDialog extends JDialog implements MouseListener
 		create00INDEXBox.setMinimumSize(new Dimension(DIALOG_WIDTH, 21));
 		create00INDEXBox.setPreferredSize(new Dimension(DIALOG_WIDTH, 21));
 		getContentPane().add(create00INDEXBox, c);
-		
+
 		ok.addMouseListener(this);
 		c.gridy = 7;
 		c.gridx = 1;
@@ -137,17 +138,17 @@ public class RemoteDialog extends JDialog implements MouseListener
 
 	public boolean getManageIndex()
 	{
-		return Boolean.valueOf(cache.get(manageIndexBox));
+		return Boolean.valueOf(cache.get(manageIndexBox)).booleanValue();
 	}
 
 	public boolean getManageSync()
 	{
-		return Boolean.valueOf(cache.get(manageSyncBox));
+		return Boolean.valueOf(cache.get(manageSyncBox)).booleanValue();
 	}
 
 	public boolean getCreate00INDEX()
 	{
-		return Boolean.valueOf(cache.get(create00INDEXBox));
+		return Boolean.valueOf(cache.get(create00INDEXBox)).booleanValue();
 	}
 
 	public boolean wasCancelled()
@@ -155,7 +156,7 @@ public class RemoteDialog extends JDialog implements MouseListener
 		return cancelled;
 	}
 
-	public void fill(String host, String user, String password, String root, boolean manageIndexes, boolean keepSync, boolean create00INDEX)
+	public void fill(final String host, final String user, final String password, final String root, final boolean manageIndexes, final boolean keepSync, final boolean create00INDEX)
 	{
 		hostField.setText(host);
 		userField.setText(user);
@@ -173,7 +174,7 @@ public class RemoteDialog extends JDialog implements MouseListener
 		cache.put(create00INDEXBox, String.valueOf(create00INDEX));
 	}
 
-	public void mouseClicked(MouseEvent arg0)
+	public void mouseClicked(final MouseEvent arg0)
 	{
 		if (arg0.getComponent() == cancel)
 		{
@@ -205,26 +206,26 @@ public class RemoteDialog extends JDialog implements MouseListener
 		}
 	}
 
-	public void setVisible(boolean truefalse)
+	public void setVisible(final boolean truefalse)
 	{
 		if (truefalse)
 			cancelled = true;
 		super.setVisible(truefalse);
 	}
 
-	public void mouseEntered(MouseEvent arg0)
+	public void mouseEntered(final MouseEvent arg0)
 	{
 	}
 
-	public void mouseExited(MouseEvent arg0)
+	public void mouseExited(final MouseEvent arg0)
 	{
 	}
 
-	public void mousePressed(MouseEvent arg0)
+	public void mousePressed(final MouseEvent arg0)
 	{
 	}
 
-	public void mouseReleased(MouseEvent arg0)
+	public void mouseReleased(final MouseEvent arg0)
 	{
 	}
 }

@@ -3,35 +3,35 @@ package com.planet_ink.zimmerscp;
 import java.util.*;
 
 /**
- * 
+ *
  * @author Bo Zimmerman
- * 
+ *
  */
 public class RemoteNode extends ZCPNode<RemoteNode>
 {
 	private static final long serialVersionUID = -932570022188085958L;
-	private SCPConnection conn;
-	private DestTree tree=null;
-	private boolean checkedForKids = false;
-	private String fileName = "";
-	private String fullName = "";
-	private short o = 0;
-	private short g = 0;
-	private short w = 0;
-	private char fileType=' ';
-	private long timestamp = 0;
 
+	private SCPConnection	conn;
+	private DestTree		tree			= null;
+	private boolean			checkedForKids	= false;
+	private String			fileName		= "";
+	private String			fullName		= "";
+	private short			o				= 0;
+	private short			g				= 0;
+	private short			w				= 0;
+	private char			fileType		= ' ';
+	private long			timestamp		= 0;
 
-	public RemoteNode(DestTree tree, SCPConnection conn)
+	public RemoteNode(final DestTree tree, final SCPConnection conn)
 	{
 		this.conn = conn;
 		this.tree = tree;
 	}
 
 	public DestTree getTree(){ return tree;}
-	public RemoteNode setTree(DestTree tree){ this.tree=tree; return this;}
-	
-	private short parseAtt(String s, int index)
+	public RemoteNode setTree(final DestTree tree){ this.tree=tree; return this;}
+
+	private static short parseAtt(final String s, final int index)
 	{
 		short att = 0;
 		if (s.charAt(index) != '-')
@@ -43,19 +43,19 @@ public class RemoteNode extends ZCPNode<RemoteNode>
 		return att;
 	}
 
-	public void parseUnixAttributes(String s, int startIndex)
+	public void parseUnixAttributes(final String s, final int startIndex)
 	{
 		o = parseAtt(s, startIndex);
 		g = parseAtt(s, startIndex+3);
 		w = parseAtt(s, startIndex+6);
 	}
-	
-	public void init(String parentDir, String fileName, long timestamp, char fileType)
+
+	public void init(final String parentDir, String fileName, final long timestamp, final char fileType)
 	{
 		this.fileType=fileType;
 		if(fileType=='l')
 		{
-			int x=fileName.lastIndexOf(" -> ");
+			final int x=fileName.lastIndexOf(" -> ");
 			if(x>0) fileName=fileName.substring(0,x).trim();
 		}
 		this.fileName = fileName;
@@ -104,8 +104,8 @@ public class RemoteNode extends ZCPNode<RemoteNode>
 	}
 
 	public char separatorChar() { return '/';}
-	
-	public String combine(String path, String name)
+
+	public String combine(final String path, final String name)
 	{
 		if(path.trim().endsWith(String.valueOf(separatorChar())))
 		{
@@ -120,9 +120,9 @@ public class RemoteNode extends ZCPNode<RemoteNode>
 		return path+separatorChar()+name;
 	}
 
-	private String typeDesc(short s)
+	private static String typeDesc(final short s)
 	{
-		StringBuffer str = new StringBuffer(3);
+		final StringBuffer str = new StringBuffer(3);
 		if ((s & 4) == 4)
 			str.append('r');
 		else
@@ -157,7 +157,7 @@ public class RemoteNode extends ZCPNode<RemoteNode>
 		return this;
 	}
 
-	public void setConnection(SCPConnection conn)
+	public void setConnection(final SCPConnection conn)
 	{
 		this.conn = conn;
 	}
@@ -199,7 +199,7 @@ public class RemoteNode extends ZCPNode<RemoteNode>
 		{
 			loadKids();
 		}
-		catch (Exception e)
+		catch (final Exception e)
 		{
 			e.printStackTrace();
 		}
@@ -212,10 +212,10 @@ public class RemoteNode extends ZCPNode<RemoteNode>
 		checkedForKids = true;
 		if (!isDirectory())
 			return;
-		Vector<RemoteNode> V = conn.getDirectory(tree,fullName + (fullName.endsWith("/")?"/":""));
+		final Vector<RemoteNode> V = conn.getDirectory(tree,fullName + (fullName.endsWith("/")?"/":""));
 		if (V != null)
 		{
-			for (RemoteNode n : V)
+			for (final RemoteNode n : V)
 				add(n);
 			sort();
 		}

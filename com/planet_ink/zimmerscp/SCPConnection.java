@@ -7,13 +7,14 @@ import com.jcraft.jsch.*;
 
 public class SCPConnection
 {
-	private String host;
-	private String user;
-	private String password;
-	public String knownHostsFile;
-	private Session _session = null;
-	private String lastReceivedFile = null;
-	private java.text.SimpleDateFormat dateFormat = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm");
+	private final String	host;
+	private final String	user;
+	private final String	password;
+	public String			knownHostsFile;
+	private Session			_session			= null;
+	private String			lastReceivedFile	= null;
+
+	private final java.text.SimpleDateFormat dateFormat = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm");
 
 	public String getHost()
 	{
@@ -35,7 +36,7 @@ public class SCPConnection
 		return knownHostsFile;
 	}
 
-	public SCPConnection(String myHost, String myKnownHostsFile, String myUser, String myPassword)
+	public SCPConnection(final String myHost, final String myKnownHostsFile, final String myUser, final String myPassword)
 	{
 		host = myHost;
 		user = myUser;
@@ -47,12 +48,12 @@ public class SCPConnection
 	{
 		if (_session == null)
 		{
-			JSch jsch = new JSch();
+			final JSch jsch = new JSch();
 			// jsch.setKnownHosts("c:\\hosts");
 			_session = jsch.getSession(user, host, 22);
 
 			// username and password will be given via UserInfo interface.
-			UserInfo ui = new MyUserInfo(password);
+			final UserInfo ui = new MyUserInfo(password);
 			_session.setUserInfo(ui);
 			_session.connect();
 		}
@@ -65,14 +66,14 @@ public class SCPConnection
 	}
 
 	/**
-	 * 
+	 *
 	 * @param in
 	 * @return
 	 * @throws IOException
 	 */
-	private int checkAck(InputStream in) throws IOException
+	private static int checkAck(final InputStream in) throws IOException
 	{
-		int b = in.read();
+		final int b = in.read();
 		// b may be 0 for success,
 		// 1 for error,
 		// 2 for fatal error,
@@ -84,7 +85,7 @@ public class SCPConnection
 
 		if (b == 1 || b == 2)
 		{
-			StringBuffer sb = new StringBuffer();
+			final StringBuffer sb = new StringBuffer();
 			int c;
 			do
 			{
@@ -105,23 +106,23 @@ public class SCPConnection
 	}
 
 	/**
-	 * 
+	 *
 	 * @param sourceFilename
 	 * @param destFilename
 	 * @return
 	 */
-	public boolean sendFile(String sourceFilename, String destFilename) throws Exception
+	public boolean sendFile(final String sourceFilename, final String destFilename) throws Exception
 	{
 		FileInputStream fis = null;
 		try
 		{
 			connect();
 			String command = "scp -p -t '" + destFilename + "'";
-			Channel channel = OpenSession("exec");
+			final Channel channel = openSession("exec");
 			((ChannelExec) channel).setCommand(command);
 
-			OutputStream out = channel.getOutputStream();
-			InputStream in = channel.getInputStream();
+			final OutputStream out = channel.getOutputStream();
+			final InputStream in = channel.getInputStream();
 
 			channel.connect();
 
@@ -131,7 +132,7 @@ public class SCPConnection
 			}
 
 			// send "C0644 filesize filename" where filename doesn't contain a /
-			long filesize = (new File(sourceFilename)).length();
+			final long filesize = (new File(sourceFilename)).length();
 			command = "C0644 " + filesize + " ";
 			if (sourceFilename.lastIndexOf('/') > 0)
 			{
@@ -153,10 +154,10 @@ public class SCPConnection
 
 			// send the contents of the source file
 			fis = new FileInputStream(sourceFilename);
-			byte[] buf = new byte[1024];
+			final byte[] buf = new byte[1024];
 			while (true)
 			{
-				int len = fis.read(buf, 0, buf.length);
+				final int len = fis.read(buf, 0, buf.length);
 
 				if (len <= 0)
 				{
@@ -193,7 +194,7 @@ public class SCPConnection
 					fis.close();
 				}
 			}
-			catch (Exception ee)
+			catch (final Exception ee)
 			{
 				ee.printStackTrace();
 			}
@@ -202,21 +203,21 @@ public class SCPConnection
 
 
 	/**
-	 * 
+	 *
 	 * @param filename
 	 * @return
 	 */
-	public boolean deleteFile(String filename, boolean recursive) throws Exception
+	public boolean deleteFile(final String filename, final boolean recursive) throws Exception
 	{
 		Channel channel = null;
 		try
 		{
 			connect();
-			String command = "rm -"+(recursive?"rf":"f")+" '"+ filename + "'";
-			channel = OpenSession("exec");
+			final String command = "rm -"+(recursive?"rf":"f")+" '"+ filename + "'";
+			channel = openSession("exec");
 			((ChannelExec) channel).setCommand(command);
 			channel.connect();
-			InputStream in = channel.getInputStream();
+			final InputStream in = channel.getInputStream();
 			try
 			{
 				if (checkAck(in) != 0)
@@ -234,23 +235,23 @@ public class SCPConnection
 				channel.disconnect();
 		}
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param filename
 	 * @return
 	 */
-	public boolean moveFile(String oldFilename, String newFilename) throws Exception
+	public boolean moveFile(final String oldFilename, final String newFilename) throws Exception
 	{
 		Channel channel = null;
 		try
 		{
 			connect();
-			String command = "mv '"+oldFilename+"' '"+ newFilename + "'";
-			channel = OpenSession("exec");
+			final String command = "mv '"+oldFilename+"' '"+ newFilename + "'";
+			channel = openSession("exec");
 			((ChannelExec) channel).setCommand(command);
 			channel.connect();
-			InputStream in = channel.getInputStream();
+			final InputStream in = channel.getInputStream();
 			try
 			{
 				if (checkAck(in) != 0)
@@ -268,23 +269,23 @@ public class SCPConnection
 				channel.disconnect();
 		}
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param filename
 	 * @return
 	 */
-	public boolean createSoftLink(String filePath, String newLinkPath) throws Exception
+	public boolean createSoftLink(final String filePath, final String newLinkPath) throws Exception
 	{
 		Channel channel = null;
 		try
 		{
 			connect();
-			String command = "ln -s '"+filePath+"' '"+ newLinkPath + "'";
-			channel = OpenSession("exec");
+			final String command = "ln -s '"+filePath+"' '"+ newLinkPath + "'";
+			channel = openSession("exec");
 			((ChannelExec) channel).setCommand(command);
 			channel.connect();
-			InputStream in = channel.getInputStream();
+			final InputStream in = channel.getInputStream();
 			try
 			{
 				if (checkAck(in) != 0)
@@ -302,23 +303,23 @@ public class SCPConnection
 				channel.disconnect();
 		}
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param filename
 	 * @return
 	 */
-	public boolean makeDirectory(String filename) throws Exception
+	public boolean makeDirectory(final String filename) throws Exception
 	{
 		Channel channel = null;
 		try
 		{
 			connect();
-			String command = "mkdir '"+ filename + "'";
-			channel = OpenSession("exec");
+			final String command = "mkdir '"+ filename + "'";
+			channel = openSession("exec");
 			((ChannelExec) channel).setCommand(command);
 			channel.connect();
-			InputStream in = channel.getInputStream();
+			final InputStream in = channel.getInputStream();
 			try
 			{
 				if (checkAck(in) != 0)
@@ -336,28 +337,28 @@ public class SCPConnection
 				channel.disconnect();
 		}
 	}
-	
+
 	public void close()
 	{
 		_session.disconnect();
 		_session=null;
 	}
-	
-	public Channel OpenSession(String exec)
+
+	public Channel openSession(final String exec)
 	{
 		try
 		{
 			return _session.openChannel(exec);
 		}
-		catch(JSchException je)
+		catch(final JSchException je)
 		{
 			try
 			{
 				close();
 				connect();
-				return OpenSession(exec);
+				return openSession(exec);
 			}
-			catch(Exception ex)
+			catch(final Exception ex)
 			{
 				ex.printStackTrace();
 				return null;
@@ -366,11 +367,11 @@ public class SCPConnection
 	}
 
 	/**
-	 * 
+	 *
 	 * @param remoteDirectory
 	 * @return
 	 */
-	public Vector<RemoteNode> getDirectory(DestTree tree, String remoteDirectory) throws Exception
+	public Vector<RemoteNode> getDirectory(final DestTree tree, String remoteDirectory) throws Exception
 	{
 		try
 		{
@@ -380,18 +381,18 @@ public class SCPConnection
 				remoteDirectory = remoteDirectory.substring(0, remoteDirectory.length() - 1);
 			if (remoteDirectory.endsWith("\\"))
 				remoteDirectory = remoteDirectory.substring(0, remoteDirectory.length() - 1);
-			String command = "ls -lAU --time-style=long-iso '" + remoteDirectory + "'";
+			final String command = "ls -lAU --time-style=long-iso '" + remoteDirectory + "'";
 			if(!remoteDirectory.endsWith("/"))
 				remoteDirectory += "/";
-			Channel channel = OpenSession("exec");
+			final Channel channel = openSession("exec");
 			((ChannelExec) channel).setCommand(command);
 
-			InputStream in = channel.getInputStream();
+			final InputStream in = channel.getInputStream();
 
 			channel.connect();
 
-			ByteArrayOutputStream bout = new ByteArrayOutputStream();
-			byte[] buf = new byte[1024];
+			final ByteArrayOutputStream bout = new ByteArrayOutputStream();
+			final byte[] buf = new byte[1024];
 			int x = 1;
 			while (x > 0)
 			{
@@ -401,9 +402,9 @@ public class SCPConnection
 			}
 			in.close();
 			channel.disconnect();
-			BufferedReader br = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(bout.toByteArray())));
+			final BufferedReader br = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(bout.toByteArray())));
 			String s = br.readLine();
-			Vector<RemoteNode> nodes = new Vector<RemoteNode>();
+			final Vector<RemoteNode> nodes = new Vector<RemoteNode>();
 			if(s!=null)
 			{
 				if (s.length() == 0)
@@ -414,9 +415,12 @@ public class SCPConnection
 				int y = 0;
 				while ((s != null) && (s.trim().length() > 0))
 				{
-					RemoteNode node = new RemoteNode(tree,this);
+					final RemoteNode node = new RemoteNode(tree,this);
 					x = 10;
 					if((s.indexOf('.')==10)&&(s.indexOf(' ')==11))
+						x=11;
+					else
+					if((s.indexOf('+')==10)&&(s.indexOf(' ')==11))
 						x=11;
 					else
 					if (s.indexOf(' ') != 10)
@@ -440,7 +444,7 @@ public class SCPConnection
 					{
 						node.size = Long.parseLong(s.substring(x + 1, y));
 					}
-					catch (Exception e)
+					catch (final Exception e)
 					{
 						s = br.readLine();
 						continue;
@@ -465,27 +469,27 @@ public class SCPConnection
 	}
 
 	/**
-	 * 
+	 *
 	 * @param sourceFilename
 	 * @param destFilename
 	 * @return
 	 */
-	public boolean getFile(String sourceFilename, String destFilename) throws Exception
+	public boolean getFile(final String sourceFilename, final String destFilename) throws Exception
 	{
 		FileOutputStream fos = null;
 		try
 		{
 			connect();
-			String command = "scp -f '" + sourceFilename + "'";
-			Channel channel = OpenSession("exec");
+			final String command = "scp -f '" + sourceFilename + "'";
+			final Channel channel = openSession("exec");
 			((ChannelExec) channel).setCommand(command);
 
-			OutputStream out = channel.getOutputStream();
-			InputStream in = channel.getInputStream();
+			final OutputStream out = channel.getOutputStream();
+			final InputStream in = channel.getInputStream();
 
 			channel.connect();
 
-			byte[] buf = new byte[1024];
+			final byte[] buf = new byte[1024];
 
 			// send '\0'
 			buf[0] = 0;
@@ -493,7 +497,7 @@ public class SCPConnection
 			out.flush();
 			while (true)
 			{
-				int c = checkAck(in);
+				final int c = checkAck(in);
 				if (c != 'C')
 				{
 					break;
@@ -512,7 +516,7 @@ public class SCPConnection
 					}
 					if (buf[0] == ' ')
 						break;
-					filesize = filesize * 10L + (long) (buf[0] - '0');
+					filesize = filesize * 10L + buf[0] - '0';
 				}
 
 				lastReceivedFile = null;
@@ -576,7 +580,7 @@ public class SCPConnection
 					fos.close();
 				}
 			}
-			catch (Exception ee)
+			catch (final Exception ee)
 			{
 				ee.printStackTrace();
 			}
@@ -584,15 +588,15 @@ public class SCPConnection
 	}
 
 	/**
-	 * 
+	 *
 	 * @author Bo Zimmerman
-	 * 
+	 *
 	 */
 	private static class MyUserInfo implements UserInfo
 	{
-		private String passwd;
+		private final String passwd;
 
-		public MyUserInfo(String passwd)
+		public MyUserInfo(final String passwd)
 		{
 			super();
 			this.passwd = passwd;
@@ -603,7 +607,7 @@ public class SCPConnection
 			return passwd;
 		}
 
-		public boolean promptYesNo(String str)
+		public boolean promptYesNo(final String str)
 		{
 			return true;
 		}
@@ -613,17 +617,17 @@ public class SCPConnection
 			return null;
 		}
 
-		public boolean promptPassphrase(String message)
+		public boolean promptPassphrase(final String message)
 		{
 			return true;
 		}
 
-		public void showMessage(String message)
+		public void showMessage(final String message)
 		{
 			System.out.println(message);
 		}
 
-		public boolean promptPassword(String message)
+		public boolean promptPassword(final String message)
 		{
 			return true;
 		}

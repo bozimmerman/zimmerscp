@@ -5,27 +5,27 @@ import java.util.*;
 
 public class FileNode extends ZCPNode<FileNode>
 {
-	private static final long serialVersionUID = -2716924200379456830L;
-	private File f;
-	private boolean checkedForKids = false;
-	private SourceTree tree = null;
-	private volatile Boolean isDirectory = null;
+	private static final long	serialVersionUID	= -2716924200379456830L;
+	private File				f;
+	private boolean				checkedForKids		= false;
+	private SourceTree			tree				= null;
+	private volatile Boolean	isDirectory			= null;
 
-	public FileNode(SourceTree tree)
+	public FileNode(final SourceTree tree)
 	{
 		super();
 		f = null;
 		this.tree=tree;
 	}
 
-	public FileNode(SourceTree tree, File f)
+	public FileNode(final SourceTree tree, final File f)
 	{
 		this(tree);
 		this.f = f;
 		isDirectory = Boolean.valueOf(f.isDirectory());
 	}
-	
-	public boolean renameTo(File newf)
+
+	public boolean renameTo(final File newf)
 	{
 		if(!f.renameTo(newf))
 			return false;
@@ -45,10 +45,10 @@ public class FileNode extends ZCPNode<FileNode>
 			build(f);
 		return super.getChildCount();
 	}
-	
+
 	public SourceTree getTree(){ return tree;}
-	public FileNode setTree(SourceTree tree){ this.tree=tree; return this;}
-	
+	public FileNode setTree(final SourceTree tree){ this.tree=tree; return this;}
+
 	@SuppressWarnings("unchecked")
 	public Enumeration<FileNode> children()
 	{
@@ -62,7 +62,7 @@ public class FileNode extends ZCPNode<FileNode>
 		return (f == null) || (isDirectory());
 	}
 
-	public synchronized FileNode build(File f)
+	public synchronized FileNode build(final File f)
 	{
 		if ((checkedForKids) || (f == null))
 			return this;
@@ -71,7 +71,7 @@ public class FileNode extends ZCPNode<FileNode>
 		checkedForKids = true;
 		if (isDirectory.booleanValue())
 		{
-			File[] files = f.listFiles();
+			final File[] files = f.listFiles();
 			for (int x = 0; x < files.length; x++)
 				add(new FileNode(tree,files[x]));
 			sort();
