@@ -48,3 +48,6 @@ Right-clicking on a file allows you to get information about, rename, delete, vi
 Editor:
 The text file editor supports cut and paste, and search with cntrl-f and cntrl-n to repeat last search.
 
+TODO:
+Add ability to default 00INDEX descriptions to blank
+Add ability to filter tree nodes down to unmatched files
