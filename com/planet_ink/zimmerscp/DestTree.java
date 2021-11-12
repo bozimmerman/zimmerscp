@@ -1334,9 +1334,10 @@ public class DestTree extends DragDropTree
 
 	private String makeDescription(final DestTree tree, final RemoteNode destDirNode, final String fileName, String description)
 	{
-		if(!tree.getManageIndexes()) return (description==null)?"":description;
+		if(!tree.getManageIndexes())
+			return (description==null)?"":description;
 		if((description==null)&&(tree.getManageIndexes()))
-			description = JOptionPane.showInputDialog(f,"Enter a description for "+destDirNode.getFileName());
+			description = JOptionPane.showInputDialog(f,"Enter a description for "+fileName+" in "+destDirNode.getFileName());
 		return description;
 	}
 
