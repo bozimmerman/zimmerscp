@@ -68,7 +68,7 @@ public class LocalDialog extends JDialog implements MouseListener
 		c.gridy = 4;
 		c.gridx = 0;
 		c.gridwidth = 3;
-		blank00INDEXDesc.setText("No 00INDEX Descs,");
+		blank00INDEXDesc.setText("No 00INDEX Descs");
 		blank00INDEXDesc.setMinimumSize(new Dimension(DIALOG_WIDTH, 21));
 		blank00INDEXDesc.setPreferredSize(new Dimension(DIALOG_WIDTH, 21));
 		getContentPane().add(blank00INDEXDesc, c);
