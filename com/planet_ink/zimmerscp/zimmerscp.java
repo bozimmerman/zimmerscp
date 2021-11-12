@@ -44,8 +44,8 @@ public class zimmerscp extends javax.swing.JFrame implements MouseListener, Wind
 	final Color[] cycle = new Color[] {
 		new Color(255, 255, 140),
 		new Color(140, 255, 140),
-		new Color(140, 140, 255),
 		new Color(255, 140, 140),
+		new Color(140, 140, 255),
 		new Color(255, 140, 255),
 		new Color(140, 255, 255),
 	};
