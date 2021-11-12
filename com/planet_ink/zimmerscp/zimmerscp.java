@@ -304,7 +304,9 @@ public class zimmerscp extends javax.swing.JFrame implements MouseListener, Wind
 				final JPanel jSettingsPanel = new JPanel();
 				final GridLayout settingsGrid = new GridLayout(3,1);
 				jSettingsPanel.setLayout(settingsGrid);
-				jSettingsPanel.setMinimumSize(new java.awt.Dimension(DEFAULT_COL_WIDTH, 150));
+				jSettingsPanel.setMinimumSize(new java.awt.Dimension(DEFAULT_COL_WIDTH, 100));
+				jSettingsPanel.setMaximumSize(new java.awt.Dimension(DEFAULT_COL_WIDTH, 100));
+				jSettingsPanel.setPreferredSize(new java.awt.Dimension(DEFAULT_COL_WIDTH, 100));
 				jSettingsListBox = new JComboBox();
 				jSettingsListBox.setPreferredSize(new Dimension(DEFAULT_COL_WIDTH-100, 20));
 				final List<ListDataListener> listener=new LinkedList<ListDataListener>();
@@ -424,11 +426,12 @@ public class zimmerscp extends javax.swing.JFrame implements MouseListener, Wind
 				addPaneButton.setPreferredSize(new Dimension(18,16));
 				addPaneButton.addMouseListener(this);
 
-				final JSplitPane jSplitSourcePane1 = new JSplitPane(JSplitPane.VERTICAL_SPLIT, jTreePanelS, jSettingsPanel);
-				jSplitSourcePane1.setDividerLocation(350);
-				final JSplitPane jSplitPane1 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, jSplitSourcePane1, null);
-				jSplitSourcePane1.setMinimumSize(new Dimension(DEFAULT_COL_WIDTH,350));
-				jSplitSourcePane1.setPreferredSize(new Dimension(DEFAULT_COL_WIDTH,500));
+				jTreePanelS.add(jSettingsPanel,BorderLayout.SOUTH);
+				//final JSplitPane jSplitSourcePane1 = new JSplitPane(JSplitPane.VERTICAL_SPLIT, jTreePanelS, jSettingsPanel);
+				//jSplitSourcePane1.setDividerLocation(350);
+				final JSplitPane jSplitPane1 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, jTreePanelS, null);
+				//jSplitSourcePane1.setMinimumSize(new Dimension(DEFAULT_COL_WIDTH,350));
+				//jSplitSourcePane1.setPreferredSize(new Dimension(DEFAULT_COL_WIDTH,500));
 				jSplitPane1.setDividerLocation(-1);
 				getContentPane().add(jSplitPane1);
 
