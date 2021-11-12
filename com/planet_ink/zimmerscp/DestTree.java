@@ -377,13 +377,16 @@ public class DestTree extends DragDropTree
 			}
 			else
 				files.addElement(F);
-		for(final File srcF : files)
-			if(!transferLocalRemote(srcF,dest))
-				return false;
+		if(files.size()>0)
+		{
+			for(final File srcF : files)
+				if(!transferLocalRemote(srcF,dest,true))
+					return false;
+		}
 		return true;
 	}
 
-	private final boolean transferLocalRemote(final File srcF, final RemoteNode dest)
+	private final boolean transferLocalRemote(final File srcF, final RemoteNode dest, final boolean refreshUI)
 	{
 		if(!dest.isDirectory())
 		{
@@ -428,12 +431,15 @@ public class DestTree extends DragDropTree
 				else
 					files.addElement(filelist[f]);
 			for(final File nxtF : files)
-				if(!transferLocalRemote(nxtF,nxtDir))
+				if(!transferLocalRemote(nxtF,nxtDir,refreshUI))
 					return false;
-			dest.removeAllChildren();
-			dest.safeLoadKids();
-			updateUI();
-			repaint();
+			if(refreshUI)
+			{
+				dest.removeAllChildren();
+				dest.safeLoadKids();
+				updateUI();
+				repaint();
+			}
 			return true;
 		}
 		RemoteNode existFile = dest.findChildNode(srcF.getName(), true);
@@ -508,10 +514,13 @@ public class DestTree extends DragDropTree
 					return false;
 				}
 			}
-			dest.removeAllChildren();
-			dest.safeLoadKids();
-			updateUI();
-			repaint();
+			if(refreshUI)
+			{
+				dest.removeAllChildren();
+				dest.safeLoadKids();
+				updateUI();
+				repaint();
+			}
 			final RemoteNode fileNode = dest.findChildNode(srcF.getName(), srcF.isDirectory());
 			if(fileNode == null)
 			{
@@ -567,7 +576,7 @@ public class DestTree extends DragDropTree
 			final FileOutputStream fo=new FileOutputStream(F);
 			fo.write((char)10);
 			fo.close();
-			if(!transferLocalRemote(F, node))
+			if(!transferLocalRemote(F, node,true))
 				return false;
 			return true;
 		}
@@ -1336,6 +1345,8 @@ public class DestTree extends DragDropTree
 	{
 		if(!tree.getManageIndexes())
 			return (description==null)?"":description;
+		if(zimmerscp.INSTANCE.getSourceTree().getBlankDescs())
+			return (description==null)?"":description;
 		if((description==null)&&(tree.getManageIndexes()))
 			description = JOptionPane.showInputDialog(f,"Enter a description for "+fileName+" in "+destDirNode.getFileName());
 		return description;
@@ -1647,7 +1658,13 @@ public class DestTree extends DragDropTree
 							{
 								final RemoteNode fn = (RemoteNode)tNode;
 								if(fn.isDirectory())
-									transferLocalRemote(F, fn);
+								{
+									if(!transferLocalRemote(F, fn, true))
+									{
+										dtde.dropComplete(true);
+										return;
+									}
+								}
 							}
 						}
 						else

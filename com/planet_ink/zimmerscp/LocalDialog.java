@@ -15,6 +15,7 @@ public class LocalDialog extends JDialog implements MouseListener
 	private final JTextField	backupField			= new JTextField();
 	private final JCheckBox		backup00INDEXBox	= new JCheckBox();
 	private final JCheckBox		backupCopyOvers		= new JCheckBox();
+	private final JCheckBox		blank00INDEXDesc	= new JCheckBox();
 	private final JButton		ok					= new JButton("Ok");
 	private final JButton		cancel				= new JButton("Cancel");
 	private boolean				cancelled			= false;
@@ -64,8 +65,17 @@ public class LocalDialog extends JDialog implements MouseListener
 		backupCopyOvers.setPreferredSize(new Dimension(DIALOG_WIDTH, 21));
 		getContentPane().add(backupCopyOvers, c);
 
-		ok.addMouseListener(this);
 		c.gridy = 4;
+		c.gridx = 0;
+		c.gridwidth = 3;
+		blank00INDEXDesc.setText("No 00INDEX Descs,");
+		blank00INDEXDesc.setMinimumSize(new Dimension(DIALOG_WIDTH, 21));
+		blank00INDEXDesc.setPreferredSize(new Dimension(DIALOG_WIDTH, 21));
+		getContentPane().add(blank00INDEXDesc, c);
+
+
+		ok.addMouseListener(this);
+		c.gridy = 5;
 		c.gridx = 1;
 		c.gridwidth = 1;
 		c.insets.set(10, 10, 10, 10);
@@ -101,21 +111,32 @@ public class LocalDialog extends JDialog implements MouseListener
 		return Boolean.valueOf(cache.get(backupCopyOvers)).booleanValue();
 	}
 
+	public boolean getBlankDescriptions()
+	{
+		return Boolean.valueOf(cache.get(blank00INDEXDesc)).booleanValue();
+	}
+
 	public boolean wasCancelled()
 	{
 		return cancelled;
 	}
 
-	public void fill(final String rootDir, final String backupDir, final boolean backupIndexes, final boolean backupCopies)
+	public void fill(final String rootDir,
+					 final String backupDir,
+					 final boolean backupIndexes,
+					 final boolean backupCopies,
+					 final boolean blankDescriptions)
 	{
 		rootField.setText(rootDir);
 		backupField.setText(backupDir);
 		backup00INDEXBox.setSelected(backupIndexes);
 		backupCopyOvers.setSelected(backupCopies);
+		blank00INDEXDesc.setSelected(blankDescriptions);
 		cache.put(rootField, rootDir);
 		cache.put(backupField, backupDir);
 		cache.put(backup00INDEXBox, String.valueOf(backupIndexes));
 		cache.put(backupCopyOvers, String.valueOf(backupCopies));
+		cache.put(blank00INDEXDesc, String.valueOf(blankDescriptions));
 	}
 
 	public void mouseClicked(final MouseEvent arg0)
@@ -126,6 +147,7 @@ public class LocalDialog extends JDialog implements MouseListener
 			backupField.setText(cache.get(backupField));
 			backup00INDEXBox.setSelected(Boolean.valueOf(cache.get(backup00INDEXBox)).booleanValue());
 			backupCopyOvers.setSelected(Boolean.valueOf(cache.get(backupCopyOvers)).booleanValue());
+			blank00INDEXDesc.setSelected(Boolean.valueOf(cache.get(blank00INDEXDesc)).booleanValue());
 			cancelled = true;
 			this.setVisible(false);
 		}
@@ -139,6 +161,7 @@ public class LocalDialog extends JDialog implements MouseListener
 				cache.put(backupField, backupField.getText());
 				cache.put(backup00INDEXBox, String.valueOf(backup00INDEXBox.isSelected()));
 				cache.put(backupCopyOvers, String.valueOf(backupCopyOvers.isSelected()));
+				cache.put(blank00INDEXDesc, String.valueOf(blank00INDEXDesc.isSelected()));
 				cancelled = false;
 				this.setVisible(false);
 			}

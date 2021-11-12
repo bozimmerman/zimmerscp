@@ -101,6 +101,7 @@ public class SourceTree extends DragDropTree
 		String backups = p.getProperty("local.backups");
 		String bindex = p.getProperty("local.backupindexes");
 		String bcopies = p.getProperty("local.backupcopies");
+		String blankdescs = p.getProperty("local.blankdescs");
 		if ((local != null) && (local.length() > 0))
 		{
 			if (backups == null)
@@ -109,9 +110,14 @@ public class SourceTree extends DragDropTree
 				bindex = "false";
 			if (bcopies == null)
 				bcopies = "false";
+			if (blankdescs == null)
+				blankdescs = "false";
 			if (dialog == null)
 				dialog = new LocalDialog(f);
-			dialog.fill(local, backups, Boolean.valueOf(bindex).booleanValue(), Boolean.valueOf(bcopies).booleanValue());
+			dialog.fill(local, backups,
+					Boolean.valueOf(bindex).booleanValue(),
+					Boolean.valueOf(bcopies).booleanValue(),
+					Boolean.valueOf(blankdescs).booleanValue());
 			setLocal(f, local, label, this, (FileNode) this.getModel().getRoot());
 		}
 	}
@@ -125,6 +131,7 @@ public class SourceTree extends DragDropTree
 			p.setProperty("local.backups", dialog.getBackupDir());
 			p.setProperty("local.backupindexes", String.valueOf(dialog.getBackupIndexes()));
 			p.setProperty("local.backupcopies", String.valueOf(dialog.getBackupCopyOvers()));
+			p.setProperty("local.blankdescs", String.valueOf(dialog.getBlankDescriptions()));
 		}
 	}
 
@@ -141,6 +148,11 @@ public class SourceTree extends DragDropTree
 	public String getBackupDir()
 	{
 		return dialog.getBackupDir();
+	}
+
+	public boolean getBlankDescs()
+	{
+		return dialog.getBlankDescriptions();
 	}
 
 	private void setLocal(final Frame f, final String root, final JLabel text, final JTree tree, final FileNode node)

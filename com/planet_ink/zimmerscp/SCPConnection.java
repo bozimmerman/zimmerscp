@@ -85,7 +85,7 @@ public class SCPConnection
 	 */
 	private static int checkAck(final InputStream in) throws IOException
 	{
-		final long bitTimeOut = System.currentTimeMillis() + 1000;
+		final long bitTimeOut = System.currentTimeMillis() + 200;
 		while((in.available()==0)&&(System.currentTimeMillis() < bitTimeOut))
 			try { Thread.sleep(1); } catch (final InterruptedException e) { }
 		final int b = in.read();
