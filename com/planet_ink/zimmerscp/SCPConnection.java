@@ -85,7 +85,7 @@ public class SCPConnection
 	 */
 	private static int checkAck(final InputStream in) throws IOException
 	{
-		final long bitTimeOut = System.currentTimeMillis() + 10;
+		final long bitTimeOut = System.currentTimeMillis() + 1000;
 		while((in.available()==0)&&(System.currentTimeMillis() < bitTimeOut))
 			try { Thread.sleep(1); } catch (final InterruptedException e) { }
 		final int b = in.read();
@@ -236,7 +236,7 @@ public class SCPConnection
 				{
 					in.close();
 					final String s=this.getFileRow(filename);
-					System.err.println(filename+"->"+s);
+					System.err.println("check: "+s);
 					return s==null;
 				}
 			}
@@ -333,23 +333,32 @@ public class SCPConnection
 		Channel channel = null;
 		try
 		{
+			if(getFileRow(filename) != null)
+				return false;
 			connect();
 			final String command = "mkdir '"+ filename + "'";
 			channel = openCommand(command);
 			if(channel == null)
 				return false;
-			final InputStream in = channel.getInputStream();
 			channel.connect();
+			final InputStream in = channel.getInputStream();
 			try
 			{
-				if (checkAck(in) != 0)
-					return false;
+				final int x = checkAck(in);
+				in.close();
+				channel.disconnect();
+				if(x==0)
+					return true;
+				close();
+				final String fileRow = getFileRow(filename);
+				if(fileRow != null)
+					return true;
 			}
 			finally
 			{
 				in.close();
 			}
-			return true;
+			return false;
 		}
 		finally
 		{
@@ -406,7 +415,7 @@ public class SCPConnection
 				remoteDirectory = remoteDirectory.substring(0, remoteDirectory.length() - 1);
 			if (remoteDirectory.endsWith("\\"))
 				remoteDirectory = remoteDirectory.substring(0, remoteDirectory.length() - 1);
-			final String command = "ls -lAU --time-style=long-iso '" + remoteDirectory + "'";
+			final String command = "ls -lAUd --time-style=long-iso '" + remoteDirectory + "'";
 			if(!remoteDirectory.endsWith("/"))
 				remoteDirectory += "/";
 			final Channel channel = openCommand(command);
@@ -445,7 +454,6 @@ public class SCPConnection
 		}
 		finally
 		{
-
 		}
 	}
 

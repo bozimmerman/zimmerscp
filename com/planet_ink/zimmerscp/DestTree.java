@@ -1348,9 +1348,10 @@ public class DestTree extends DragDropTree
 		final JDialog dlg = zimmerscp.showWorkingDialog(f);
 		try
 		{
-			if(!destNode.getConnection().makeDirectory(destNode.combine(destNode.getFullName(),dirName)))
+			final String newDirName = destNode.combine(destNode.getFullName(),dirName);
+			if(!destNode.getConnection().makeDirectory(newDirName))
 			{
-				if(JOptionPane.showConfirmDialog(f, "Error making remote dir "+destNode.getFullName()+". Continue?", "Create dir",JOptionPane.YES_NO_OPTION)!=JOptionPane.YES_OPTION)
+				if(JOptionPane.showConfirmDialog(f, "Error making remote dir "+newDirName+". Continue?", "Create dir",JOptionPane.YES_NO_OPTION)!=JOptionPane.YES_OPTION)
 					return false;
 			}
 			destNode.removeAllChildren();
@@ -1374,7 +1375,7 @@ public class DestTree extends DragDropTree
 					final DestTree otherTree = otherNode.getTree();
 					if(!otherTree.makeDirectoryRemote(otherNode,dirName,description,true))
 					{
-						if(JOptionPane.showConfirmDialog(f, "Error making remote dir "+otherNode.getFullName()+". Continue?", "Create dir",JOptionPane.YES_NO_OPTION)!=JOptionPane.YES_OPTION)
+						if(JOptionPane.showConfirmDialog(f, "Error making remote dir "+dirName+" in "+otherNode.getFullName()+". Continue?", "Create dir",JOptionPane.YES_NO_OPTION)!=JOptionPane.YES_OPTION)
 							return false;
 					}
 				}
