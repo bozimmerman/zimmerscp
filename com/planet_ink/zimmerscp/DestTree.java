@@ -1476,16 +1476,30 @@ public class DestTree extends DragDropTree
 		final String newName = JOptionPane.showInputDialog(f,"New name",node.getFileName());
 		if((newName==null)||newName.equals(node.getFileName()))
 			return true;
+		RemoteNode[] others = null;
+		if(getSync())
+		{
+			try
+			{
+				others = findSiblings(node);
+			}
+			catch(final Exception e) {
+				if(!renameRemote(node,newName))
+					JOptionPane.showMessageDialog(f, "Unable to rename "+node.getFullName());
+				JOptionPane.showMessageDialog(f, "Sync Error: "+e.getMessage());
+				return false;
+			}
+		}
 		if(!renameRemote(node,newName))
 		{
 			if(JOptionPane.showConfirmDialog(f, "Unable to rename "+node.getFullName()+".\nContinue to rename?","Unable to rename",JOptionPane.YES_NO_OPTION)!=JOptionPane.YES_OPTION)
 				return false;
 		}
-		if(getSync())
+		if(getSync() && (others != null))
 		{
 			try
 			{
-				for(final RemoteNode siblingNode : findSiblings(node))
+				for(final RemoteNode siblingNode : others)
 				{
 					final DestTree otherTree = siblingNode.getTree();
 					if(!otherTree.renameRemote(siblingNode, newName))
