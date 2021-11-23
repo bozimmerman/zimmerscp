@@ -460,13 +460,14 @@ public class DestTree extends DragDropTree
 				{
 					try
 					{
+						RemoteNode[] others = findSiblings(existFile);
 						boolean response=unsafeDeleteRemoteFile(this,existFile,false);
 						if(!response)
 						{
 							if(JOptionPane.showConfirmDialog(f, "Error: Continue to delete?","Sync Node not found",JOptionPane.YES_NO_OPTION)!=JOptionPane.YES_OPTION)
 								return false;
 						}
-						for(final RemoteNode otherNode : findSiblings(existFile))
+						for(final RemoteNode otherNode : others)
 						{
 							if(response && getSync()&&(otherNode != null))
 							{

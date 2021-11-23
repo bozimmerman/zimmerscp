@@ -50,3 +50,4 @@ The text file editor supports cut and paste, and search with cntrl-f and cntrl-n
 
 TODO:
 Add ability to filter tree nodes down to unmatched files
+Refresh should restore open nodes
