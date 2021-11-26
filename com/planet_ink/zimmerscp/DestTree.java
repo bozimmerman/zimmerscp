@@ -137,7 +137,9 @@ public class DestTree extends DragDropTree
 		if (conn != null)
 			conn.close();
 		conn = new SCPConnection(dialog.getHost(), "", dialog.getUser(), dialog.getPassword());
+		final String state = this.getExpansionState();
 		setDestination(f, dialog.getRoot(), this, (RemoteNode) this.getModel().getRoot(), label);
+		this.setExpansionState(state);
 	}
 
 	public void loadSettings(final Frame f, final JLabel label, final Properties p)

@@ -49,6 +49,27 @@ public abstract class DragDropTree extends JTree implements ActionListener, Drop
 	{
 	}
 
+	public String getExpansionState()
+	{
+		StringBuilder sb = new StringBuilder();
+		for ( int i = 0; i < getRowCount(); i++ )
+		{
+			if ( isExpanded(i) )
+				sb.append(i).append(",");
+		}
+		return sb.toString();
+	}
+
+	public void setExpansionState(String s)
+	{
+		String[] indexes = s.split(",");
+		for ( String st : indexes )
+		{
+			int row = Integer.parseInt(st);
+			expandRow(row);
+		}
+	}
+	
 	public DragDropTree(final String name, final Frame f, final DefaultMutableTreeNode n)
 	{
 		super(n);

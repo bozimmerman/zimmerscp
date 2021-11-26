@@ -92,7 +92,9 @@ public class SourceTree extends DragDropTree
 
 	public void refresh(final Frame f, final JLabel label)
 	{
+		final String state = this.getExpansionState();
 		setLocal(f, dialog.getRootDir(), label, this, (FileNode) this.getModel().getRoot());
+		this.setExpansionState(state);
 	}
 
 	public void loadSettings(final Frame f, final JLabel label, final Properties p)
