@@ -51,7 +51,7 @@ public abstract class DragDropTree extends JTree implements ActionListener, Drop
 
 	public String getExpansionState()
 	{
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		for ( int i = 0; i < getRowCount(); i++ )
 		{
 			if ( isExpanded(i) )
@@ -60,16 +60,16 @@ public abstract class DragDropTree extends JTree implements ActionListener, Drop
 		return sb.toString();
 	}
 
-	public void setExpansionState(String s)
+	public void setExpansionState(final String s)
 	{
-		String[] indexes = s.split(",");
-		for ( String st : indexes )
+		final String[] indexes = s.split(",");
+		for ( final String st : indexes )
 		{
-			int row = Integer.parseInt(st);
+			final int row = Integer.parseInt(st);
 			expandRow(row);
 		}
 	}
-	
+
 	public DragDropTree(final String name, final Frame f, final DefaultMutableTreeNode n)
 	{
 		super(n);
@@ -86,11 +86,13 @@ public abstract class DragDropTree extends JTree implements ActionListener, Drop
 		{
 			private static final long serialVersionUID = 3136844598684414486L;
 
+			@Override
 			public int getSourceActions(final JComponent c)
 			{
 				return COPY;
 			}
 
+			@Override
 			public Transferable createTransferable(final JComponent c)
 			{
 				if (c instanceof DragDropTree)
@@ -132,10 +134,12 @@ public abstract class DragDropTree extends JTree implements ActionListener, Drop
 				return null;
 			}
 
+			@Override
 			public void exportDone(final JComponent c, final Transferable t, final int action)
 			{
 			}
 
+			@Override
 			public boolean canImport(final TransferHandler.TransferSupport t)
 			{
 				if (t.getComponent() instanceof DragDropTree)
@@ -147,6 +151,7 @@ public abstract class DragDropTree extends JTree implements ActionListener, Drop
 				return false;
 			}
 
+			@Override
 			public boolean importData(final TransferHandler.TransferSupport t)
 			{
 				if (t.getComponent() instanceof DragDropTree)

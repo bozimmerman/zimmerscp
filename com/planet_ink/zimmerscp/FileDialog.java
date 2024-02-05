@@ -80,7 +80,8 @@ public class FileDialog extends JDialog implements KeyListener, WindowListener
 	@Override
 	public void keyPressed(final KeyEvent e)
 	{
-		if(e.isControlDown() && ((e.getKeyCode() == KeyEvent.VK_F)||(e.getKeyCode() == KeyEvent.VK_N)))
+		if(e.isControlDown()
+		&& ((e.getKeyCode() == KeyEvent.VK_F)||(e.getKeyCode() == KeyEvent.VK_N)))
 		{
 			if((e.getKeyCode() == KeyEvent.VK_F)||(lastSearch==null)||(lastSearch.trim().length()==0))
 				lastSearch = JOptionPane.showInputDialog("Enter a search string");
@@ -117,7 +118,12 @@ public class FileDialog extends JDialog implements KeyListener, WindowListener
 		else
 		if (edit == EDIT_TYPE.EDIT_TEXT)
 		{
-			if((!e.isActionKey())&&(!e.isConsumed())&&(e.getKeyCode()!=KeyEvent.VK_SHIFT)&&(e.getKeyCode()!=KeyEvent.VK_ALT)&&(e.getKeyCode()!=KeyEvent.VK_CONTROL))
+			if((!e.isActionKey())
+			&&(!e.isConsumed())
+			&&(e.getKeyCode()!=KeyEvent.VK_SHIFT)
+			&&(e.getKeyCode()!=KeyEvent.VK_ALT)
+			&&(e.getKeyCode()!=KeyEvent.VK_CONTROL)
+			&&((!e.isControlDown())||(e.getKeyCode()!=KeyEvent.VK_C)))
 			{
 				filenameField.setBackground(Color.pink);
 				dirty = true;

@@ -23,7 +23,7 @@ public class zimmerscp extends javax.swing.JFrame implements MouseListener, Wind
 	private static final long serialVersionUID = -2866392485562765792L;
 
 	private static final int	DEFAULT_COL_WIDTH	= 250;
-	private static final double	VERSION				= 2.1;
+	private static final double	VERSION				= 2.2;
 	private SourceTree			jTreeS;
 	private JLabel				jTreeTextS;
 	private JButton				jTreeBSettingsS;
@@ -40,6 +40,8 @@ public class zimmerscp extends javax.swing.JFrame implements MouseListener, Wind
 	private final Map<DestTree, JLabel>					destTrees			= new Hashtable<DestTree, JLabel>();
 
 	public static zimmerscp INSTANCE;
+
+	public volatile boolean shiftKeyDown = false;
 
 	final Color[] cycle = new Color[] {
 		new Color(255, 255, 140),
@@ -439,6 +441,26 @@ public class zimmerscp extends javax.swing.JFrame implements MouseListener, Wind
 
 				pack();
 			}
+			KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(new KeyEventDispatcher() {
+				@Override
+				public boolean dispatchKeyEvent(final KeyEvent e)
+				{
+					synchronized(this.getClass())
+					{
+						if((e.getKeyCode()==KeyEvent.VK_SHIFT)
+						||(e.getKeyCode()==KeyEvent.VK_ALT))
+						{
+							if(e.getID() == KeyEvent.KEY_PRESSED)
+								shiftKeyDown=true;
+							else
+							if(e.getID() == KeyEvent.KEY_RELEASED)
+								shiftKeyDown=false;
+						}
+					}
+					return false;
+				}
+
+			});
 			setSize((DEFAULT_COL_WIDTH*(destTrees.size()+1)), 500);
 		}
 		catch (final Exception e)
