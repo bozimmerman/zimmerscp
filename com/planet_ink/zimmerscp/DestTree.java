@@ -989,20 +989,20 @@ public class DestTree extends DragDropTree
 						&&(!node.getFileName().equalsIgnoreCase("00index")))
 						{
 							description = get00INDEXDescription(nodeZeroZeroIndexFile, node);
-							if(description != null)
+							if(description == null)
+								description = "";
+							if(!addToBoth00INDEX(destZeroZeroIndexFile, node, description, true))
+								return false;
+							if((otherDestZeroZeroIndexFile!=null)&&(otherNode != null))
 							{
-								if(!addToBoth00INDEX(destZeroZeroIndexFile, node, description, true))
-									return false;
-								if((otherDestZeroZeroIndexFile!=null)&&(otherNode != null))
+								for(final DestTree otherTree : zimmerscp.INSTANCE.getOtherRemoteTree(this))
 								{
-									for(final DestTree otherTree : zimmerscp.INSTANCE.getOtherRemoteTree(this))
-									{
-										if(!otherTree.addToBoth00INDEX(otherDestZeroZeroIndexFile, otherNode, description, true))
-											return false;
-									}
+									if(!otherTree.addToBoth00INDEX(otherDestZeroZeroIndexFile, otherNode, description, true))
+										return false;
+									otherTree.removeFromBoth00INDEX(otherDestZeroZeroIndexFile, otherNode, null, true);
 								}
-								this.removeFromBoth00INDEX(nodeZeroZeroIndexFile, node, null, true);
 							}
+							this.removeFromBoth00INDEX(nodeZeroZeroIndexFile, node, null, true);
 						}
 
 						// time to build the relative path
