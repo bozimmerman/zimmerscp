@@ -967,6 +967,10 @@ public class DestTree extends DragDropTree
 				{
 					try
 					{
+						final RemoteNode otherNodeZeroZeroIndexFile = getMy00INDEX(otherNode);
+						if((otherNodeZeroZeroIndexFile==null)
+						&&(JOptionPane.showConfirmDialog(f, "Remote 00INDEX file not found.\nContinue to move file?","00INDEX not found",JOptionPane.YES_NO_OPTION)!=JOptionPane.YES_OPTION))
+							return false;
 						final RemoteNode otherDestDir = findSiblingNode(otherNode.getTree(), destDir);
 						RemoteNode otherDestZeroZeroIndexFile = null;
 						if(getSync() && getManageIndexes() && (otherDestDir!=null))
@@ -999,8 +1003,8 @@ public class DestTree extends DragDropTree
 								{
 									if(!otherTree.addToBoth00INDEX(otherDestZeroZeroIndexFile, otherNode, description, true))
 										return false;
-									otherTree.removeFromBoth00INDEX(otherDestZeroZeroIndexFile, otherNode, null, true);
 								}
+								this.removeFromBoth00INDEX(otherNodeZeroZeroIndexFile, otherNode, null, true);
 							}
 							this.removeFromBoth00INDEX(nodeZeroZeroIndexFile, node, null, true);
 						}
