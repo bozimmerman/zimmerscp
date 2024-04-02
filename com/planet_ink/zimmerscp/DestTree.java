@@ -796,7 +796,7 @@ public class DestTree extends DragDropTree
 		{
 			try
 			{
-				final RemoteNode destDir2 = node.getTree().findSiblingNode(node.getTree(), destDir);
+				final RemoteNode destDir2 = destDir.getTree().findSiblingNode(node.getTree(), destDir);
 				if(destDir2 == null)
 				{
 					JOptionPane.showMessageDialog(f, "Sibling dest node not be found.");
@@ -955,7 +955,7 @@ public class DestTree extends DragDropTree
 		{
 			try
 			{
-				final RemoteNode destDir2 = node.getTree().findSiblingNode(node.getTree(), destDir);
+				final RemoteNode destDir2 = destDir.getTree().findSiblingNode(node.getTree(), destDir);
 				if(destDir2 == null)
 				{
 					JOptionPane.showMessageDialog(f, "Sibling dest node not be found.");
