@@ -23,7 +23,7 @@ public class zimmerscp extends javax.swing.JFrame implements MouseListener, Wind
 	private static final long serialVersionUID = -2866392485562765792L;
 
 	private static final int	DEFAULT_COL_WIDTH	= 250;
-	private static final double	VERSION				= 2.2;
+	private static final double	VERSION				= 2.3;
 	private SourceTree			jTreeS;
 	private JLabel				jTreeTextS;
 	private JButton				jTreeBSettingsS;

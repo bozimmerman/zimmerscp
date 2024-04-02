@@ -336,7 +336,10 @@ public class DestTree extends DragDropTree
 						{
 							final List<File> fl = new ArrayList<File>();
 							if (o instanceof FileNode)
-								fl.add(((FileNode) o).getFile());
+							{
+								final File n = ((FileNode) o).getFile();
+								fl.add(n);
+							}
 							else
 							if (o instanceof List)
 							{
@@ -777,13 +780,8 @@ public class DestTree extends DragDropTree
 		return true;
 	}
 
-	private final boolean softlinkRemote(final RemoteNode node, final RemoteNode destDir)
+	private final boolean softlinkRemote(final RemoteNode node, RemoteNode destDir)
 	{
-		if(node == getModel().getRoot())
-		{
-			JOptionPane.showMessageDialog(f, "Root nodes can not be linked anywhere.");
-			return false;
-		}
 		if(node==null)
 		{
 			JOptionPane.showMessageDialog(f, "Node is missing.");
@@ -792,6 +790,29 @@ public class DestTree extends DragDropTree
 		if(destDir==null)
 		{
 			JOptionPane.showMessageDialog(f, "Destination is missing.");
+			return false;
+		}
+		if(destDir.getTree() != node.getTree())
+		{
+			try
+			{
+				final RemoteNode destDir2 = node.getTree().findSiblingNode(node.getTree(), destDir);
+				if(destDir2 == null)
+				{
+					JOptionPane.showMessageDialog(f, "Sibling dest node not be found.");
+					return false;
+				}
+				destDir = destDir2;
+			}
+			catch (final Exception e)
+			{
+				JOptionPane.showMessageDialog(f, "Sibling dest node could not be found.");
+				return false;
+			}
+		}
+		if(node == getModel().getRoot())
+		{
+			JOptionPane.showMessageDialog(f, "Root nodes can not be linked anywhere.");
 			return false;
 		}
 		if(!destDir.isDirectory())
@@ -918,13 +939,8 @@ public class DestTree extends DragDropTree
 		return true;
 	}
 
-	private final boolean moveRemote(final RemoteNode node, final RemoteNode destDir)
+	private final boolean moveRemote(final RemoteNode node, RemoteNode destDir)
 	{
-		if(node == getModel().getRoot())
-		{
-			JOptionPane.showMessageDialog(f, "Root nodes can not be moved anywhere.");
-			return false;
-		}
 		if(node==null)
 		{
 			JOptionPane.showMessageDialog(f, "Node is missing.");
@@ -933,6 +949,29 @@ public class DestTree extends DragDropTree
 		if(destDir==null)
 		{
 			JOptionPane.showMessageDialog(f, "Destination is missing.");
+			return false;
+		}
+		if(destDir.getTree() != node.getTree())
+		{
+			try
+			{
+				final RemoteNode destDir2 = node.getTree().findSiblingNode(node.getTree(), destDir);
+				if(destDir2 == null)
+				{
+					JOptionPane.showMessageDialog(f, "Sibling dest node not be found.");
+					return false;
+				}
+				destDir = destDir2;
+			}
+			catch (final Exception e)
+			{
+				JOptionPane.showMessageDialog(f, "Sibling dest node could not be found.");
+				return false;
+			}
+		}
+		if(node == getModel().getRoot())
+		{
+			JOptionPane.showMessageDialog(f, "Root nodes can not be moved anywhere.");
 			return false;
 		}
 		if(!destDir.isDirectory())
