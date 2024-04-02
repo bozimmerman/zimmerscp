@@ -780,7 +780,7 @@ public class DestTree extends DragDropTree
 		return true;
 	}
 
-	private final boolean softlinkRemote(final RemoteNode node, RemoteNode destDir)
+	private final boolean softlinkRemote(final RemoteNode node, final RemoteNode destDir)
 	{
 		if(node==null)
 		{
@@ -802,7 +802,7 @@ public class DestTree extends DragDropTree
 					JOptionPane.showMessageDialog(f, "Sibling dest node not be found.");
 					return false;
 				}
-				destDir = destDir2;
+				return destDir2.getTree().moveRemote(node, destDir2);
 			}
 			catch (final Exception e)
 			{
@@ -939,7 +939,7 @@ public class DestTree extends DragDropTree
 		return true;
 	}
 
-	private final boolean moveRemote(final RemoteNode node, RemoteNode destDir)
+	private final boolean moveRemote(final RemoteNode node, final RemoteNode destDir)
 	{
 		if(node==null)
 		{
@@ -961,7 +961,7 @@ public class DestTree extends DragDropTree
 					JOptionPane.showMessageDialog(f, "Sibling dest node not be found.");
 					return false;
 				}
-				destDir = destDir2;
+				return destDir2.getTree().moveRemote(node, destDir2);
 			}
 			catch (final Exception e)
 			{
@@ -1085,7 +1085,7 @@ public class DestTree extends DragDropTree
 			}
 			catch(final Exception e)
 			{
-				if(JOptionPane.showConfirmDialog(f, "Sync node error: "+e.getMessage()+"\nContinue to create link?","Sync Node not found",JOptionPane.YES_NO_OPTION)!=JOptionPane.YES_OPTION)
+				if(JOptionPane.showConfirmDialog(f, "Sync node error: "+e.getMessage()+"\nContinue to move file?","Sync Node not found",JOptionPane.YES_NO_OPTION)!=JOptionPane.YES_OPTION)
 					return false;
 			}
 		}
