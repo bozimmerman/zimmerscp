@@ -161,16 +161,14 @@ public class FileDialog extends JDialog implements KeyListener, WindowListener
 
 	private static boolean isTextFile(final File F)
 	{
-		try
+		try(final FileInputStream fio = new FileInputStream(F))
 		{
-			final FileInputStream fio = new FileInputStream(F);
 			long length = F.length();
 			if (length > 2048)
 				length = 2048;
 			int c = fio.read();
 			while ((c > 0) && ((length--) > 0))
 				c = fio.read();
-			fio.close();
 			if (c == 0)
 				return false;
 			return true;
@@ -192,68 +190,71 @@ public class FileDialog extends JDialog implements KeyListener, WindowListener
 	protected String getStringifiedDataFromFile(final File F)
 	{
 		final StringBuffer buf = new StringBuffer("");
+		final boolean isText = isTextFile(F);
 		try
 		{
-			BufferedReader br = new BufferedReader(new FileReader(F));
-			if (isTextFile(F))
+			if(isText)
 			{
-				br.close();
 				cr="\n";
-				final FileReader fr=new FileReader(F);
-				int c=fr.read();
-				while(c>=0)
+				try(final FileInputStream fr = new FileInputStream(F))
 				{
-					if((c=='\r')||(c=='\n'))
+					int c=fr.read();
+					while(c>=0)
 					{
-						cr=""+((char)c);
+						if((c=='\r')||(c=='\n'))
+						{
+							cr=""+((char)c);
+							c=fr.read();
+							if(((c=='\r')||(c=='\n'))&&(c!=cr.charAt(0)))
+								cr+=((char)c);
+							break;
+						}
 						c=fr.read();
-						if(((c=='\r')||(c=='\n'))&&(c!=cr.charAt(0)))
-							cr+=((char)c);
-						break;
 					}
-					c=fr.read();
 				}
-				fr.close();
-				br = new BufferedReader(new FileReader(F));
-				String s = br.readLine();
-				while (s != null)
+				try(final BufferedReader br = new BufferedReader(new FileReader(F)))
 				{
-					buf.append(s + "\n");
-					s = br.readLine();
+					String s = br.readLine();
+					while (s != null)
+					{
+						buf.append(s + "\n");
+						s = br.readLine();
+					}
+					br.close();
 				}
-				br.close();
 			}
 			else
 			{
-				final FileInputStream fio = new FileInputStream(F);
-				int c = fio.read();
-				long length = F.length();
-				long ctr = 0;
-				long addr = 0;
-				final StringBuffer text = new StringBuffer("");
-				while ((c >= 0) && ((length--) > 0))
+				try(final FileInputStream fio = new FileInputStream(F))
 				{
-					if (ctr == 0)
+					int c = fio.read();
+					long length = F.length();
+					long ctr = 0;
+					long addr = 0;
+					final StringBuffer text = new StringBuffer("");
+					while ((c >= 0) && ((length--) > 0))
 					{
-						if(addr>0)
-							buf.append(text.toString() + "\n");
-						buf.append(padWithZeros(Long.toHexString(addr), ADDRESS_SIZE) + " ");
-						text.setLength(0);
-						ctr = 8;
-						addr += 8;
+						if (ctr == 0)
+						{
+							if(addr>0)
+								buf.append(text.toString() + "\n");
+							buf.append(padWithZeros(Long.toHexString(addr), ADDRESS_SIZE) + " ");
+							text.setLength(0);
+							ctr = 8;
+							addr += 8;
+						}
+						long l = ((long) c) & 0xff;
+						buf.append(padWithZeros(Integer.toHexString((int) l), 2) + " ");
+						l = l & 0x7f;
+						if ((l < 32) || (l > 126))
+							text.append('.');
+						else
+							text.append((char) l);
+						ctr--;
+						c = fio.read();
 					}
-					long l = ((long) c) & 0xff;
-					buf.append(padWithZeros(Integer.toHexString((int) l), 2) + " ");
-					l = l & 0x7f;
-					if ((l < 32) || (l > 126))
-						text.append('.');
-					else
-						text.append((char) l);
-					ctr--;
-					c = fio.read();
+					buf.append(text.toString() + "\n");
 				}
-				buf.append(text.toString() + "\n");
-				fio.close();
 			}
 		}
 		catch (final Exception e)
