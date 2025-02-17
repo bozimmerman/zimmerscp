@@ -3,6 +3,8 @@ package com.planet_ink.zimmerscp;
 import java.io.*;
 import java.util.*;
 
+import javax.swing.tree.TreeNode;
+
 public class FileNode extends ZCPNode<FileNode>
 {
 	private static final long	serialVersionUID	= -2716924200379456830L;
@@ -50,11 +52,11 @@ public class FileNode extends ZCPNode<FileNode>
 	public FileNode setTree(final SourceTree tree){ this.tree=tree; return this;}
 
 	@SuppressWarnings("unchecked")
-	public Enumeration<FileNode> children()
+	public Enumeration<TreeNode> children()
 	{
 		if (!checkedForKids)
 			build(f);
-		return super.children();
+		return (Enumeration<TreeNode>)super.children();
 	}
 
 	public boolean getAllowsChildren()

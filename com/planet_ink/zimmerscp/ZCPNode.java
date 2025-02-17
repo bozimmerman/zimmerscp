@@ -6,9 +6,11 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.List;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.MutableTreeNode;
+import javax.swing.tree.TreeNode;
 
 public abstract class ZCPNode<T extends ZCPNode<T>> extends DefaultMutableTreeNode implements Transferable, Comparable<ZCPNode<T>>
 {
@@ -17,7 +19,7 @@ public abstract class ZCPNode<T extends ZCPNode<T>> extends DefaultMutableTreeNo
 	@SuppressWarnings("unchecked")
 	public T findChildNode(final String name, final boolean nameIsDirectory)
 	{
-		for(final Enumeration<DefaultMutableTreeNode> e=children(); e.hasMoreElements();)
+		for(final Enumeration<TreeNode> e=children(); e.hasMoreElements();)
 		{
 			final T fn = (T)e.nextElement();
 			if((fn.isDirectory()== nameIsDirectory)
@@ -30,7 +32,7 @@ public abstract class ZCPNode<T extends ZCPNode<T>> extends DefaultMutableTreeNo
 	@SuppressWarnings("unchecked")
 	public T findChildNodeIgnoreCase(final String name)
 	{
-		for(final Enumeration<DefaultMutableTreeNode> e=children(); e.hasMoreElements();)
+		for(final Enumeration<TreeNode> e=children(); e.hasMoreElements();)
 		{
 			final T fn = (T)e.nextElement();
 			if(name.equalsIgnoreCase(fn.getFileName()))
@@ -42,7 +44,7 @@ public abstract class ZCPNode<T extends ZCPNode<T>> extends DefaultMutableTreeNo
 	@SuppressWarnings("unchecked")
 	public T findChildNode(final String name)
 	{
-		for(final Enumeration<DefaultMutableTreeNode> e=children(); e.hasMoreElements();)
+		for(final Enumeration<TreeNode> e=children(); e.hasMoreElements();)
 		{
 			final T fn = (T)e.nextElement();
 			if(name.equals(fn.getFileName()))
@@ -54,7 +56,7 @@ public abstract class ZCPNode<T extends ZCPNode<T>> extends DefaultMutableTreeNo
 	@SuppressWarnings("unchecked")
 	public T findChildNodeIgnoreCase(final String name, final boolean nameIsDirectory)
 	{
-		for(final Enumeration<DefaultMutableTreeNode> e=children(); e.hasMoreElements();)
+		for(final Enumeration<TreeNode> e=children(); e.hasMoreElements();)
 		{
 			final T fn = (T)e.nextElement();
 			if((fn.isDirectory()== nameIsDirectory)
@@ -76,7 +78,11 @@ public abstract class ZCPNode<T extends ZCPNode<T>> extends DefaultMutableTreeNo
 	public void sort()
 	{
 		if(children != null)
-			Collections.sort(children);
+		{
+			@SuppressWarnings("rawtypes")
+			List list = (List)super.children;
+			Collections.sort(list);
+		}
 	}
 
 	public abstract String getFileName();

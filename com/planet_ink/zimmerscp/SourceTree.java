@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -70,6 +72,12 @@ public class SourceTree extends DragDropTree
 				{
 					popupMenu.add("View");
 					popupMenu.add("Edit");
+					final String name = fnode.getFileName().toLowerCase();
+					if(name.endsWith(".gz"))
+						popupMenu.add("UnGZip");
+					else
+					if(name.endsWith(".d64")||name.endsWith(".d71")||name.endsWith(".d80")||name.endsWith(".d81")||name.endsWith(".d82"))
+						popupMenu.add("GZip");
 				}
 			}
 		}
@@ -203,6 +211,102 @@ public class SourceTree extends DragDropTree
 		return true;
 	}
 
+	private boolean gzipLocal(final FileNode node)
+	{
+		GZIPOutputStream gzipOutputStream = null;
+		FileInputStream fileInputStream = null;
+		boolean error = false;
+		final File sourceFile = node.getFile();
+		File targetFile = new File(sourceFile.getParentFile(), sourceFile.getName()+".gz");
+		while(targetFile.exists())
+			targetFile = new File(sourceFile.getParentFile(), targetFile.getName()+".gz");
+		try
+		{
+			fileInputStream = new FileInputStream(sourceFile);
+			gzipOutputStream = new GZIPOutputStream(new FileOutputStream(targetFile.getAbsoluteFile()));
+			byte[] buffer = new byte[1024];
+			int bytesRead;
+			while ((bytesRead = fileInputStream.read(buffer)) != -1) 
+			{
+				gzipOutputStream.write(buffer, 0, bytesRead);
+			}
+		}
+		catch(Exception e)
+		{
+			error = true;
+		}
+		try
+		{
+			if(fileInputStream != null)
+				fileInputStream.close();
+		}
+		catch(Exception e)
+		{
+			error = true;
+		}
+		try
+		{
+			if(gzipOutputStream != null)
+				gzipOutputStream.close();
+		}
+		catch(Exception e)
+		{
+			return false;
+		}
+		if(error)
+			return false;
+		sourceFile.delete();
+		return true;
+	}
+
+	private boolean ungzipLocal(final FileNode node)
+	{
+		GZIPInputStream gzipInputStream = null;
+		FileOutputStream fileOutputStream = null;
+		boolean error = false;
+		final File sourceFile = node.getFile();
+		File targetFile = new File(sourceFile.getParentFile(), sourceFile.getName().substring(0,sourceFile.getName().length()-3));
+		if(targetFile.exists())
+			return false;
+		try
+		{
+			gzipInputStream = new GZIPInputStream(new FileInputStream(sourceFile.getAbsoluteFile()));
+			fileOutputStream = new FileOutputStream(targetFile);
+			byte[] buffer = new byte[1024];
+			int bytesRead;
+			while ((bytesRead = gzipInputStream.read(buffer)) != -1) 
+			{
+				fileOutputStream.write(buffer, 0, bytesRead);
+			}
+		}
+		catch(Exception e)
+		{
+			error = true;
+		}
+		try
+		{
+			if(gzipInputStream != null)
+				gzipInputStream.close();
+		}
+		catch(Exception e)
+		{
+			error = true;
+		}
+		try
+		{
+			if(fileOutputStream != null)
+				fileOutputStream.close();
+		}
+		catch(Exception e)
+		{
+			return false;
+		}
+		if(error)
+			return false;
+		sourceFile.delete();
+		return true;
+	}
+
 	public void actionPerformed(final ActionEvent e)
 	{
 		if (e.getActionCommand().equalsIgnoreCase("Info"))
@@ -246,6 +350,10 @@ public class SourceTree extends DragDropTree
 			viewLocal((FileNode) getSelectedNode());
 		else if (e.getActionCommand().equalsIgnoreCase("Edit"))
 			editLocal((FileNode) getSelectedNode());
+		else if (e.getActionCommand().equalsIgnoreCase("GZip"))
+			gzipLocal((FileNode) getSelectedNode());
+		else if (e.getActionCommand().equalsIgnoreCase("UnGZip"))
+			ungzipLocal((FileNode) getSelectedNode());
 	}
 
 	private final boolean makeDirLocal(final FileNode node)
@@ -486,9 +594,9 @@ public class SourceTree extends DragDropTree
 		if(srcR.isDirectory())
 		{
 			FileNode nxtDir = null;
-			for(final Enumeration<FileNode> e=dest.children(); e.hasMoreElements();)
+			for(final Enumeration<TreeNode> e=dest.children(); e.hasMoreElements();)
 			{
-				final FileNode fn = e.nextElement();
+				final FileNode fn = (FileNode)e.nextElement();
 				if(fn.getFile().isDirectory() && fn.getFile().getName().equals(srcR.getFileName()))
 				{
 					nxtDir=fn;
@@ -520,9 +628,9 @@ public class SourceTree extends DragDropTree
 				dest.add(nxtDir);
 				dest.sort();
 			}
-			for(final Enumeration<RemoteNode> e=srcR.children(); e.hasMoreElements();)
+			for(final Enumeration<TreeNode> e=srcR.children(); e.hasMoreElements();)
 			{
-				final RemoteNode nxtR=e.nextElement();
+				final RemoteNode nxtR=(RemoteNode)e.nextElement();
 				if(!transferRemoteLocal(rTree,nxtR,nxtDir))
 					return false;
 			}

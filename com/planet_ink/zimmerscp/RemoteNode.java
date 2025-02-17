@@ -2,6 +2,8 @@ package com.planet_ink.zimmerscp;
 
 import java.util.*;
 
+import javax.swing.tree.TreeNode;
+
 /**
  *
  * @author Bo Zimmerman
@@ -181,11 +183,11 @@ public class RemoteNode extends ZCPNode<RemoteNode>
 	}
 
 	@SuppressWarnings("unchecked")
-	public Enumeration<RemoteNode> children()
+	public Enumeration<TreeNode> children()
 	{
 		if (!checkedForKids)
 			safeLoadKids();
-		return super.children();
+		return (Enumeration<TreeNode>)super.children();
 	}
 
 	public boolean getAllowsChildren()
