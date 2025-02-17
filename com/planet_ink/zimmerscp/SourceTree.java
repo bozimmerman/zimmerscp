@@ -256,6 +256,7 @@ public class SourceTree extends DragDropTree
 		if(error)
 			return false;
 		sourceFile.delete();
+		node.build(targetFile);
 		return true;
 	}
 
@@ -304,6 +305,7 @@ public class SourceTree extends DragDropTree
 		if(error)
 			return false;
 		sourceFile.delete();
+		node.build(targetFile);
 		return true;
 	}
 
