@@ -15,6 +15,7 @@ public class RemoteDialog extends JDialog implements MouseListener
 	private final JTextField	userField			= new JTextField();
 	private final JTextField	passwordField		= new JTextField();
 	private final JTextField	rootField			= new JTextField();
+	private final JTextField	portMaxavField		= new JTextField();
 	private final JCheckBox		manageIndexBox		= new JCheckBox();
 	private final JCheckBox		manageSyncBox		= new JCheckBox();
 	private final JCheckBox		create00INDEXBox	= new JCheckBox();
@@ -26,12 +27,14 @@ public class RemoteDialog extends JDialog implements MouseListener
 
 	public RemoteDialog(final Frame f)
 	{
-		super(f, "Enter remote connection information");
+		super(f, "Remote connection settings");
 		setLocationRelativeTo(this); // center on screen
 		final GridBagConstraints c = new GridBagConstraints();
+		
+		int gridy=-1;
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.gridx = 0;
-		c.gridy = 0;
+		c.gridy = ++gridy;
 		c.gridwidth = 1;
 		getContentPane().setLayout(new GridBagLayout());
 		getContentPane().add(new JLabel("Host:"), c);
@@ -41,7 +44,7 @@ public class RemoteDialog extends JDialog implements MouseListener
 		hostField.setPreferredSize(new Dimension(DIALOG_WIDTH, 21));
 		getContentPane().add(hostField, c);
 
-		c.gridy = 1;
+		c.gridy = ++gridy;
 		c.gridx = 0;
 		c.gridwidth = 1;
 		getContentPane().add(new JLabel("User:"), c);
@@ -51,7 +54,7 @@ public class RemoteDialog extends JDialog implements MouseListener
 		userField.setPreferredSize(new Dimension(DIALOG_WIDTH, 21));
 		getContentPane().add(userField, c);
 
-		c.gridy = 2;
+		c.gridy = ++gridy;
 		c.gridx = 0;
 		c.gridwidth = 1;
 		getContentPane().add(new JLabel("Password:"), c);
@@ -61,7 +64,7 @@ public class RemoteDialog extends JDialog implements MouseListener
 		passwordField.setPreferredSize(new Dimension(DIALOG_WIDTH, 21));
 		getContentPane().add(passwordField, c);
 
-		c.gridy = 3;
+		c.gridy = ++gridy;
 		c.gridx = 0;
 		c.gridwidth = 1;
 		getContentPane().add(new JLabel("Root Dir:"), c);
@@ -71,7 +74,17 @@ public class RemoteDialog extends JDialog implements MouseListener
 		rootField.setPreferredSize(new Dimension(DIALOG_WIDTH, 21));
 		getContentPane().add(rootField, c);
 
-		c.gridy = 4;
+		c.gridy = ++gridy;
+		c.gridx = 0;
+		c.gridwidth = 1;
+		getContentPane().add(new JLabel("SSHD Port:"), c);
+		c.gridx = 1;
+		c.gridwidth = 1;
+		portMaxavField.setMinimumSize(new Dimension(DIALOG_WIDTH/4, 21));
+		portMaxavField.setPreferredSize(new Dimension(DIALOG_WIDTH/4, 21));
+		getContentPane().add(portMaxavField, c);
+
+		c.gridy = ++gridy;
 		c.gridx = 0;
 		c.gridwidth = 3;
 		manageIndexBox.setText("Manage 00INDEX files");
@@ -79,7 +92,7 @@ public class RemoteDialog extends JDialog implements MouseListener
 		manageIndexBox.setPreferredSize(new Dimension(DIALOG_WIDTH, 21));
 		getContentPane().add(manageIndexBox, c);
 
-		c.gridy = 5;
+		c.gridy = ++gridy;
 		c.gridx = 0;
 		c.gridwidth = 3;
 		manageSyncBox.setText("Sync With Others");
@@ -88,7 +101,7 @@ public class RemoteDialog extends JDialog implements MouseListener
 		getContentPane().add(manageSyncBox, c);
 
 
-		c.gridy = 6;
+		c.gridy = ++gridy;
 		c.gridx = 0;
 		c.gridwidth = 3;
 		create00INDEXBox.setText("Create 00INDEX files");
@@ -97,7 +110,7 @@ public class RemoteDialog extends JDialog implements MouseListener
 		getContentPane().add(create00INDEXBox, c);
 
 		ok.addMouseListener(this);
-		c.gridy = 7;
+		c.gridy = ++gridy;
 		c.gridx = 1;
 		c.gridwidth = 1;
 		c.insets.set(10, 10, 10, 10);
@@ -111,6 +124,7 @@ public class RemoteDialog extends JDialog implements MouseListener
 		cache.put(userField, "");
 		cache.put(passwordField, "");
 		cache.put(rootField, "");
+		cache.put(portMaxavField, "22");
 		cache.put(manageIndexBox, String.valueOf(true));
 		cache.put(manageSyncBox, String.valueOf(true));
 		cache.put(create00INDEXBox, String.valueOf(false));
@@ -136,6 +150,18 @@ public class RemoteDialog extends JDialog implements MouseListener
 		return cache.get(rootField);
 	}
 
+	public int getSSHDPort()
+	{
+		try
+		{
+			return Integer.parseInt(cache.get(portMaxavField).trim());
+		}
+		catch(final Exception e)
+		{
+			return 22;
+		}
+	}
+
 	public boolean getManageIndex()
 	{
 		return Boolean.valueOf(cache.get(manageIndexBox)).booleanValue();
@@ -156,12 +182,14 @@ public class RemoteDialog extends JDialog implements MouseListener
 		return cancelled;
 	}
 
-	public void fill(final String host, final String user, final String password, final String root, final boolean manageIndexes, final boolean keepSync, final boolean create00INDEX)
+	public void fill(final String host, final String user, final String password, final String root, final int port, 
+					final boolean manageIndexes, final boolean keepSync, final boolean create00INDEX)
 	{
 		hostField.setText(host);
 		userField.setText(user);
 		passwordField.setText(password);
 		rootField.setText(root);
+		portMaxavField.setText(""+port);
 		manageIndexBox.setSelected(manageIndexes);
 		manageSyncBox.setSelected(keepSync);
 		create00INDEXBox.setSelected(create00INDEX);
@@ -169,11 +197,25 @@ public class RemoteDialog extends JDialog implements MouseListener
 		cache.put(userField, user);
 		cache.put(passwordField, password);
 		cache.put(rootField, root);
+		cache.put(portMaxavField, ""+port);
 		cache.put(manageIndexBox, String.valueOf(manageIndexes));
 		cache.put(manageSyncBox, String.valueOf(keepSync));
 		cache.put(create00INDEXBox, String.valueOf(create00INDEX));
 	}
 
+	public boolean isInt(final String s)
+	{
+		try
+		{
+			int port = Integer.valueOf(s.trim());
+			if(port >=0)
+				return true;
+		}
+		catch(Exception e)
+		{}
+		return false;
+	}
+	
 	public void mouseClicked(final MouseEvent arg0)
 	{
 		if (arg0.getComponent() == cancel)
@@ -185,18 +227,25 @@ public class RemoteDialog extends JDialog implements MouseListener
 		{
 			if (hostField.getText().trim().length() == 0)
 				hostField.requestFocus();
-			else if (userField.getText().trim().length() == 0)
+			else 
+			if (userField.getText().trim().length() == 0)
 				userField.requestFocus();
-			else if (passwordField.getText().trim().length() == 0)
+			else 
+			if (passwordField.getText().trim().length() == 0)
 				passwordField.requestFocus();
-			else if (rootField.getText().trim().length() == 0)
+			else
+			if (rootField.getText().trim().length() == 0)
 				rootField.requestFocus();
+			else
+			if (!isInt(portMaxavField.getText()))
+				portMaxavField.requestFocus();
 			else
 			{
 				cache.put(hostField, hostField.getText());
 				cache.put(userField, userField.getText());
 				cache.put(passwordField, passwordField.getText());
 				cache.put(rootField, rootField.getText());
+				cache.put(portMaxavField, portMaxavField.getText().trim());
 				cache.put(manageIndexBox, String.valueOf(manageIndexBox.isSelected()));
 				cache.put(manageSyncBox, String.valueOf(manageSyncBox.isSelected()));
 				cache.put(create00INDEXBox, String.valueOf(create00INDEXBox.isSelected()));

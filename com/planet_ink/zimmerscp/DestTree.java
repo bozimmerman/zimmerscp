@@ -125,7 +125,7 @@ public class DestTree extends DragDropTree
 		{
 			if (conn != null)
 				conn.close();
-			conn = new SCPConnection(dialog.getHost(), "", dialog.getUser(), dialog.getPassword());
+			conn = new SCPConnection(dialog.getHost(), "", dialog.getUser(), dialog.getPassword(), dialog.getSSHDPort());
 			setDestination(f, dialog.getRoot(), this, (RemoteNode) this.getModel().getRoot(), label);
 		}
 	}
@@ -136,7 +136,7 @@ public class DestTree extends DragDropTree
 			dialog = new RemoteDialog(f);
 		if (conn != null)
 			conn.close();
-		conn = new SCPConnection(dialog.getHost(), "", dialog.getUser(), dialog.getPassword());
+		conn = new SCPConnection(dialog.getHost(), "", dialog.getUser(), dialog.getPassword(), dialog.getSSHDPort());
 		final String state = this.getExpansionState();
 		setDestination(f, dialog.getRoot(), this, (RemoteNode) this.getModel().getRoot(), label);
 		this.setExpansionState(state);
@@ -149,20 +149,36 @@ public class DestTree extends DragDropTree
 		final String password = p.getProperty("remote" + num + ".password");
 		final String knownhosts = p.getProperty("remote" + num + ".knownhosts");
 		final String dir = p.getProperty("remote" + num + ".dir");
+		String port = p.getProperty("remote" + num + ".sshdport");
 		String mindex = p.getProperty("remote" + num + ".manageindexes");
 		String msync = p.getProperty("remote" + num + ".managesync");
 		String cr00index = p.getProperty("remote" + num + ".create00index");
-		if(mindex==null) mindex="false";
-		if(msync==null) msync="false";
-		if(cr00index==null) cr00index="false";
+		if(mindex==null) 
+			mindex="false";
+		if(msync==null) 
+			msync="false";
+		if(cr00index==null) 
+			cr00index="false";
+		if((port == null)||(port.trim().length()==0))
+			port="22";
 		if ((host != null) && (dir != null) && (host.length() > 0) && (dir.length() > 0))
 		{
+			int portNum = 22;
+			try
+			{
+				portNum=Integer.parseInt(port.trim());
+			}
+			catch(Exception e)
+			{
+				portNum=22;
+			}
 			if (dialog == null)
 				dialog = new RemoteDialog(f);
-			dialog.fill(host, user, password, dir, Boolean.valueOf(mindex).booleanValue(), Boolean.valueOf(msync).booleanValue(), Boolean.valueOf(cr00index).booleanValue());
+			dialog.fill(host, user, password, dir, portNum, Boolean.valueOf(mindex).booleanValue(), 
+					Boolean.valueOf(msync).booleanValue(), Boolean.valueOf(cr00index).booleanValue());
 			if (conn != null)
 				conn.close();
-			conn = new SCPConnection(host, knownhosts, user, password);
+			conn = new SCPConnection(host, knownhosts, user, password, portNum);
 			setDestination(f, dir, this, (RemoteNode) this.getModel().getRoot(), label);
 		}
 	}
@@ -177,6 +193,7 @@ public class DestTree extends DragDropTree
 			p.setProperty("remote" + num + ".password", conn.getPassword());
 			p.setProperty("remote" + num + ".knownhosts", conn.getKnownHostsFile());
 			p.setProperty("remote" + num + ".dir", n.getFullName());
+			p.setProperty("remote" + num + ".sshdport", ""+conn.getSSHDPort());
 			p.setProperty("remote" + num + ".manageindexes", String.valueOf(dialog.getManageIndex()));
 			p.setProperty("remote" + num + ".managesync", String.valueOf(dialog.getManageSync()));
 			p.setProperty("remote" + num + ".create00index", String.valueOf(dialog.getCreate00INDEX()));

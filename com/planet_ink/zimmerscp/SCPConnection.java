@@ -10,6 +10,7 @@ public class SCPConnection
 	private final String	host;
 	private final String	user;
 	private final String	password;
+	private final int		sshdPort;
 	public String			knownHostsFile;
 	private Session			_session			= null;
 	private String			lastReceivedFile	= null;
@@ -31,17 +32,23 @@ public class SCPConnection
 		return password;
 	}
 
+	public int getSSHDPort()
+	{
+		return sshdPort;
+	}
+
 	public String getKnownHostsFile()
 	{
 		return knownHostsFile;
 	}
 
-	public SCPConnection(final String myHost, final String myKnownHostsFile, final String myUser, final String myPassword)
+	public SCPConnection(final String myHost, final String myKnownHostsFile, final String myUser, final String myPassword, int sshdPort)
 	{
 		host = myHost;
 		user = myUser;
 		password = myPassword;
 		knownHostsFile = myKnownHostsFile;
+		this.sshdPort = sshdPort;
 	}
 
 	private boolean connect() throws JSchException
@@ -50,7 +57,7 @@ public class SCPConnection
 		{
 			final JSch jsch = new JSch();
 			// jsch.setKnownHosts("c:\\hosts");
-			_session = jsch.getSession(user, host, 22);
+			_session = jsch.getSession(user, host, sshdPort);
 
 			// username and password will be given via UserInfo interface.
 			final UserInfo ui = new MyUserInfo(password);

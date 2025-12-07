@@ -65,8 +65,13 @@ public abstract class DragDropTree extends JTree implements ActionListener, Drop
 		final String[] indexes = s.split(",");
 		for ( final String st : indexes )
 		{
-			final int row = Integer.parseInt(st);
-			expandRow(row);
+			try
+			{
+				final int row = Integer.parseInt(st);
+				expandRow(row);
+			}
+			catch(Exception e)
+			{}
 		}
 	}
 

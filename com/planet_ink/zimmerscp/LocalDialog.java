@@ -24,7 +24,7 @@ public class LocalDialog extends JDialog implements MouseListener
 
 	public LocalDialog(final Frame f)
 	{
-		super(f, "Enter local directory information");
+		super(f, "Local filesystem settings");
 		setLocationRelativeTo(this); // center on screen
 		final GridBagConstraints c = new GridBagConstraints();
 		c.fill = GridBagConstraints.HORIZONTAL;
