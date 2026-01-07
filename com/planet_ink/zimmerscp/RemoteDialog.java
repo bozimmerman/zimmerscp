@@ -30,7 +30,7 @@ public class RemoteDialog extends JDialog implements MouseListener
 		super(f, "Remote connection settings");
 		setLocationRelativeTo(this); // center on screen
 		final GridBagConstraints c = new GridBagConstraints();
-		
+
 		int gridy=-1;
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.gridx = 0;
@@ -182,7 +182,7 @@ public class RemoteDialog extends JDialog implements MouseListener
 		return cancelled;
 	}
 
-	public void fill(final String host, final String user, final String password, final String root, final int port, 
+	public void fill(final String host, final String user, final String password, final String root, final int port,
 					final boolean manageIndexes, final boolean keepSync, final boolean create00INDEX)
 	{
 		hostField.setText(host);
@@ -207,15 +207,15 @@ public class RemoteDialog extends JDialog implements MouseListener
 	{
 		try
 		{
-			int port = Integer.valueOf(s.trim());
+			final int port = Integer.valueOf(s.trim()).intValue();
 			if(port >=0)
 				return true;
 		}
-		catch(Exception e)
+		catch(final Exception e)
 		{}
 		return false;
 	}
-	
+
 	public void mouseClicked(final MouseEvent arg0)
 	{
 		if (arg0.getComponent() == cancel)
@@ -227,10 +227,10 @@ public class RemoteDialog extends JDialog implements MouseListener
 		{
 			if (hostField.getText().trim().length() == 0)
 				hostField.requestFocus();
-			else 
+			else
 			if (userField.getText().trim().length() == 0)
 				userField.requestFocus();
-			else 
+			else
 			if (passwordField.getText().trim().length() == 0)
 				passwordField.requestFocus();
 			else

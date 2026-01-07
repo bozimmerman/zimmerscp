@@ -18,6 +18,7 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -46,7 +47,7 @@ public class DestTree extends DragDropTree
 	private PopupMenu		popupMenu	= null;
 	private Frame			f			= null;
 	private JLabel			topLabel	= null;
-	private final DragDropTree	me			= this;
+	private final DragDropTree	me		= this;
 
 	public DestTree(final String name, final Frame f, final RemoteNode m, final int num)
 	{
@@ -93,6 +94,11 @@ public class DestTree extends DragDropTree
 			{
 				popupMenu.add("MakeDir");
 				popupMenu.add("New 00INDEX");
+				if(getSync() && zimmerscp.INSTANCE.numDestTrees() > 1)
+				{
+					popupMenu.add("Compare");
+					popupMenu.add("Deep Compare");
+				}
 			}
 			else
 			{
@@ -153,11 +159,11 @@ public class DestTree extends DragDropTree
 		String mindex = p.getProperty("remote" + num + ".manageindexes");
 		String msync = p.getProperty("remote" + num + ".managesync");
 		String cr00index = p.getProperty("remote" + num + ".create00index");
-		if(mindex==null) 
+		if(mindex==null)
 			mindex="false";
-		if(msync==null) 
+		if(msync==null)
 			msync="false";
-		if(cr00index==null) 
+		if(cr00index==null)
 			cr00index="false";
 		if((port == null)||(port.trim().length()==0))
 			port="22";
@@ -168,13 +174,13 @@ public class DestTree extends DragDropTree
 			{
 				portNum=Integer.parseInt(port.trim());
 			}
-			catch(Exception e)
+			catch(final Exception e)
 			{
 				portNum=22;
 			}
 			if (dialog == null)
 				dialog = new RemoteDialog(f);
-			dialog.fill(host, user, password, dir, portNum, Boolean.valueOf(mindex).booleanValue(), 
+			dialog.fill(host, user, password, dir, portNum, Boolean.valueOf(mindex).booleanValue(),
 					Boolean.valueOf(msync).booleanValue(), Boolean.valueOf(cr00index).booleanValue());
 			if (conn != null)
 				conn.close();
@@ -239,10 +245,18 @@ public class DestTree extends DragDropTree
 		final RemoteNode node = (RemoteNode) tn;
 		if(sn instanceof RemoteNode)
 		{
-			if(zimmerscp.INSTANCE.shiftKeyDown)
-				return softlinkRemote((RemoteNode)sn, node);
+			final RemoteNode snode = (RemoteNode)sn;
+			if(snode.getTree() != node.getTree())
+			{
+				return copyRemoteToRemote(snode, node);
+			}
 			else
-				return moveRemote((RemoteNode)sn, node);
+			{
+				if(zimmerscp.INSTANCE.shiftKeyDown)
+					return softlinkRemote(snode, node);
+				else
+					return moveRemote(snode, node);
+			}
 		}
 		else
 		{
@@ -283,8 +297,7 @@ public class DestTree extends DragDropTree
 						return fl.size() > 0;
 					}
 					if((sn instanceof RemoteNode)
-					&&(!((RemoteNode)sn).isSoftlink())
-					&&(tnode.getTree()==((RemoteNode)sn).getTree()))
+					&&(!((RemoteNode)sn).isSoftlink()))
 						return true;
 				}
 				catch (final Exception e)
@@ -301,30 +314,30 @@ public class DestTree extends DragDropTree
 		if (t.getDropLocation() instanceof JTree.DropLocation)
 		{
 			final JTree.DropLocation location = (JTree.DropLocation) t.getDropLocation();
-			if (location.getPath() != null)
-				if (location.getPath().getLastPathComponent() instanceof RemoteNode)
+			if (location.getPath() == null)
+				return false;
+			if (location.getPath().getLastPathComponent() instanceof RemoteNode)
+			{
+				final RemoteNode node = (RemoteNode) location.getPath().getLastPathComponent();
+				if (node.isDirectory())
 				{
-					final RemoteNode node = (RemoteNode) location.getPath().getLastPathComponent();
-					if (node.isDirectory())
+					try
 					{
-						try
-						{
-							final Object o = t.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
-							if (o instanceof FileNode)
-								return true;
-							else
-							if (o instanceof List)
-								return ((List)o).size() > 0;
-							if((o instanceof RemoteNode)
-							&&(!((RemoteNode)o).isSoftlink())
-							&&(node.getTree()==((RemoteNode)o).getTree()))
-								return true;
-						}
-						catch (final Exception e)
-						{
-						}
+						final Object o = t.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
+						if (o instanceof FileNode)
+							return true;
+						else
+						if (o instanceof List)
+							return ((List)o).size() > 0;
+						if((o instanceof RemoteNode)
+						&&(!((RemoteNode)o).isSoftlink()))
+							return true;
+					}
+					catch (final Exception e)
+					{
 					}
 				}
+			}
 		}
 		return false;
 	}
@@ -344,10 +357,17 @@ public class DestTree extends DragDropTree
 						final Object o = t.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
 						if(o instanceof RemoteNode)
 						{
-							if(zimmerscp.INSTANCE.shiftKeyDown)
-								return softlinkRemote((RemoteNode)o, node);
+							if(((RemoteNode)o).getTree() != node.getTree())
+							{
+								return copyRemoteToRemote((RemoteNode)o, node);
+							}
 							else
-								return moveRemote((RemoteNode)o, node);
+							{
+								if(zimmerscp.INSTANCE.shiftKeyDown)
+									return softlinkRemote((RemoteNode)o, node);
+								else
+									return moveRemote((RemoteNode)o, node);
+							}
 						}
 						else
 						{
@@ -365,10 +385,17 @@ public class DestTree extends DragDropTree
 									if(o1 instanceof RemoteNode)
 									{
 										final boolean success;
-										if(zimmerscp.INSTANCE.shiftKeyDown)
-											success = softlinkRemote((RemoteNode)o1, node);
+										if(((RemoteNode)o1).getTree() != node.getTree())
+										{
+											success = copyRemoteToRemote((RemoteNode)o1, node);
+										}
 										else
-											success = moveRemote((RemoteNode)o1, node);
+										{
+											if(zimmerscp.INSTANCE.shiftKeyDown)
+												success = softlinkRemote((RemoteNode)o1, node);
+											else
+												success = moveRemote((RemoteNode)o1, node);
+										}
 										if(!success)
 											return false;
 									}
@@ -421,6 +448,192 @@ public class DestTree extends DragDropTree
 					return false;
 		}
 		return true;
+	}
+
+	private final boolean copyRemoteToRemote(final RemoteNode sourceNode, final RemoteNode destDir)
+	{
+		if(sourceNode == null)
+		{
+			JOptionPane.showMessageDialog(f, "Source node is missing.");
+			return false;
+		}
+		if(destDir == null)
+		{
+			JOptionPane.showMessageDialog(f, "Destination is missing.");
+			return false;
+		}
+		if(!destDir.isDirectory())
+		{
+			JOptionPane.showMessageDialog(f, "Destination is not a directory.");
+			return false;
+		}
+
+		RemoteNode destZeroZeroIndexFile = null;
+		if(getManageIndexes() && (!sourceNode.getFileName().equalsIgnoreCase("00index")))
+		{
+			destZeroZeroIndexFile = getIn00INDEX(destDir);
+			if((destZeroZeroIndexFile == null)
+			&& (getManageIndexes())
+			&& (JOptionPane.showConfirmDialog(f, "Destination 00INDEX file not found.\nContinue to copy?",
+				"00INDEX not found", JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION))
+				return false;
+		}
+
+		RemoteNode existFile = destDir.findChildNode(sourceNode.getFileName(), true);
+		if(existFile == null)
+			existFile = destDir.findChildNode(sourceNode.getFileName(), false);
+		if(existFile != null)
+		{
+			if(existFile.isDirectory())
+			{
+				JOptionPane.showMessageDialog(f, "Can not create remote file "+existFile.getFullName()+" because it collides with a directory.");
+				return false;
+			}
+			if(JOptionPane.showConfirmDialog(f, "Remote File '"+existFile.getFullName()+"' already exists.\nDelete it and proceed?","File exists!",JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION)
+				return false;
+			final JDialog dlg = zimmerscp.showWorkingDialog(f);
+			try
+			{
+				if(getSync())
+				{
+					try
+					{
+						final RemoteNode[] others = findSiblings(existFile);
+						boolean response = unsafeDeleteRemoteFile(this, existFile, false);
+						if(!response)
+						{
+							if(JOptionPane.showConfirmDialog(f, "Error: Continue to delete?","Sync Node not found",JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION)
+								return false;
+						}
+						for(final RemoteNode otherNode : others)
+						{
+							if(response && getSync() && (otherNode != null))
+							{
+								final DestTree otherTree = otherNode.getTree();
+								if(otherTree != sourceNode.getTree())
+								{
+									response = unsafeDeleteRemoteFile(otherTree, otherNode, false);
+									if(!response)
+									{
+										JOptionPane.showMessageDialog(f, "Unable to delete remote file "+existFile.getFullName());
+										return false;
+									}
+								}
+							}
+						}
+					}
+					catch(final Exception e)
+					{
+						JOptionPane.showMessageDialog(f, "Unable to delete remote file "+existFile.getFullName()+"\n"+e.getMessage());
+						return false;
+					}
+				}
+			}
+			finally
+			{
+				dlg.dispose();
+			}
+		}
+
+		final JDialog dlg = zimmerscp.showWorkingDialog(f);
+		try
+		{
+			final SourceTree srcTree = zimmerscp.INSTANCE.getSourceTree();
+			final FileNode localRoot = (FileNode)srcTree.getModel().getRoot();
+			final File localDir = localRoot.getFile();
+
+			if((localDir == null) || (!localDir.exists()) || (!localDir.isDirectory()))
+			{
+				JOptionPane.showMessageDialog(f, "Local directory is not valid.");
+				return false;
+			}
+
+			final File tempFile = new File(localDir, sourceNode.getFileName());
+			if(tempFile.exists())
+			{
+				if(tempFile.isDirectory())
+				{
+					JOptionPane.showMessageDialog(f, "Can not create local file "+tempFile.getAbsolutePath()+" because it collides with a directory.");
+					return false;
+				}
+				if(!tempFile.delete())
+				{
+					JOptionPane.showMessageDialog(f, "Can not delete existing local file "+tempFile.getAbsolutePath()+".");
+					return false;
+				}
+			}
+
+			try
+			{
+				sourceNode.getConnection().getFile(sourceNode.getFullName(), tempFile.getAbsolutePath());
+
+				destDir.getConnection().sendFile(tempFile.getAbsolutePath(),
+					destDir.combine(destDir.getFullName(), sourceNode.getFileName()));
+
+				if(getSync())
+				{
+					try
+					{
+						for(final RemoteNode otherDir : findSiblings(destDir))
+						{
+							final DestTree otherTree = otherDir.getTree();
+							if(otherTree != sourceNode.getTree())
+							{
+								otherDir.getConnection().sendFile(tempFile.getAbsolutePath(),
+									otherDir.combine(otherDir.getFullName(), sourceNode.getFileName()));
+								otherDir.removeAllChildren();
+								otherDir.safeLoadKids();
+								otherTree.updateUI();
+								otherTree.repaint();
+							}
+						}
+					}
+					catch(final Exception e)
+					{
+						JOptionPane.showMessageDialog(f, "Sync Error: "+e.getMessage());
+						return false;
+					}
+				}
+
+				destDir.removeAllChildren();
+				destDir.safeLoadKids();
+				updateUI();
+				repaint();
+
+				if(getManageIndexes() && destZeroZeroIndexFile != null &&
+				   !sourceNode.getFileName().equalsIgnoreCase("00index"))
+				{
+					final RemoteNode copiedNode = destDir.findChildNode(sourceNode.getFileName(),
+						sourceNode.isDirectory());
+					if(copiedNode != null)
+					{
+						final String description = JOptionPane.showInputDialog(f,
+							"Enter description for "+sourceNode.getFileName()+" in 00INDEX");
+						if(description != null)
+						{
+							if(!addToBoth00INDEX(destZeroZeroIndexFile, copiedNode, description, true))
+								return false;
+						}
+					}
+				}
+			}
+			finally
+			{
+				if(tempFile.exists())
+					tempFile.delete();
+			}
+
+			return true;
+		}
+		catch(final Exception e)
+		{
+			JOptionPane.showMessageDialog(f, "Unable to copy file: "+e.getMessage());
+			return false;
+		}
+		finally
+		{
+			dlg.dispose();
+		}
 	}
 
 	private final boolean transferLocalRemote(final File srcF, final RemoteNode dest, final boolean refreshUI)
@@ -954,6 +1167,193 @@ public class DestTree extends DragDropTree
 			}
 		}
 		return true;
+	}
+
+	private final void clearMarks(final RemoteNode node)
+	{
+		node.setMarked(false);
+		for(int i=0; i<node.getChildCount(); i++)
+		{
+			final RemoteNode child = (RemoteNode)node.getChildAt(i);
+			if(child.isDirectory())
+				clearMarks(child);
+			else
+				child.setMarked(false);
+		}
+	}
+
+	private final void markParentDirectories(final RemoteNode node)
+	{
+		if(!node.isDirectory())
+			return;
+
+		boolean hasMarkedChild = false;
+		for(int i=0; i<node.getChildCount(); i++)
+		{
+			final RemoteNode child = (RemoteNode)node.getChildAt(i);
+			if(child.isDirectory())
+				markParentDirectories(child);
+			if(child.isMarked())
+				hasMarkedChild = true;
+		}
+
+		if(hasMarkedChild)
+			node.setMarked(true);
+	}
+
+	private final void compareRemote(final RemoteNode node, final boolean deep)
+	{
+		if((node == null) || (!node.isDirectory()))
+			return;
+		if(!getSync())
+		{
+			JOptionPane.showMessageDialog(f, "Sync must be enabled to compare.");
+			return;
+		}
+		try
+		{
+			final RemoteNode[] siblings = findSiblings(node);
+			if(siblings.length == 0)
+			{
+				JOptionPane.showMessageDialog(f, "No sibling nodes found to compare.");
+				return;
+			}
+			clearMarks(node);
+			for(final RemoteNode sibling : siblings)
+				clearMarks(sibling);
+			final JDialog dlg = zimmerscp.showWorkingDialog(f);
+			try
+			{
+				recursiveCompare(node, siblings, deep);
+
+				markParentDirectories(node);
+				for(final RemoteNode sibling : siblings)
+					markParentDirectories(sibling);
+
+				updateUI();
+				repaint();
+				for(final RemoteNode sibling : siblings)
+				{
+					sibling.getTree().updateUI();
+					sibling.getTree().repaint();
+				}
+			}
+			finally
+			{
+				dlg.dispose();
+			}
+		}
+		catch(final Exception e)
+		{
+			JOptionPane.showMessageDialog(f, "Comparison error: "+e.getMessage());
+		}
+	}
+
+	private final void recursiveCompare(final RemoteNode node, final RemoteNode[] siblings, final boolean deep)
+	{
+		if(!node.isDirectory())
+			return;
+
+		node.safeLoadKids();
+		for(final RemoteNode sibling : siblings)
+			sibling.safeLoadKids();
+
+		for(int i=0; i<node.getChildCount(); i++)
+		{
+			final RemoteNode child = (RemoteNode)node.getChildAt(i);
+			final String childName = child.getFileName();
+			final boolean childIsDir = child.isDirectory();
+
+			if(!childIsDir)
+			{
+				final Set<Long> allSizes = new HashSet<Long>();
+				allSizes.add(Long.valueOf(child.getSize()));
+
+				for(final RemoteNode sibling : siblings)
+				{
+					final RemoteNode siblingChild = sibling.findChildNode(childName, childIsDir);
+					if(siblingChild != null)
+						allSizes.add(Long.valueOf(siblingChild.getSize()));
+				}
+
+				boolean fileDiffers = false;
+				if(allSizes.size() > 1)
+					fileDiffers = true;
+				else
+				if(deep && allSizes.size() == 1)
+				{
+					final Set<String> allHashes = new HashSet<String>();
+					allHashes.add(child.getHash());
+					for(final RemoteNode sibling : siblings)
+					{
+						final RemoteNode siblingChild = sibling.findChildNode(childName, childIsDir);
+						if(siblingChild != null)
+							allHashes.add(siblingChild.getHash());
+					}
+
+					if(allHashes.size() > 1)
+						fileDiffers = true;
+				}
+
+				for(final RemoteNode sibling : siblings)
+				{
+					final RemoteNode siblingChild = sibling.findChildNode(childName, childIsDir);
+					if(siblingChild == null)
+					{
+						fileDiffers = true;
+						break;
+					}
+				}
+
+				if(fileDiffers)
+				{
+					child.setMarked(true);
+					for(final RemoteNode sibling : siblings)
+					{
+						final RemoteNode siblingChild = sibling.findChildNode(childName, childIsDir);
+						if(siblingChild != null)
+							siblingChild.setMarked(true);
+					}
+				}
+			}
+
+			if(childIsDir)
+			{
+				final RemoteNode[] childSiblings = new RemoteNode[siblings.length];
+				for(int s=0; s<siblings.length; s++)
+					childSiblings[s] = siblings[s].findChildNode(childName, true);
+
+				boolean allChildSiblingsExist = true;
+				for(final RemoteNode cs : childSiblings)
+				{
+					if(cs == null)
+					{
+						allChildSiblingsExist = false;
+						break;
+					}
+				}
+
+				if(allChildSiblingsExist)
+					recursiveCompare(child, childSiblings, deep);
+			}
+		}
+
+		for(final RemoteNode sibling : siblings)
+		{
+			for(int i=0; i<sibling.getChildCount(); i++)
+			{
+				final RemoteNode sibChild = (RemoteNode)sibling.getChildAt(i);
+				final String sibChildName = sibChild.getFileName();
+				final boolean sibChildIsDir = sibChild.isDirectory();
+
+				final RemoteNode match = node.findChildNode(sibChildName, sibChildIsDir);
+				if(match == null)
+				{
+					sibChild.setMarked(true);
+					node.setMarked(true);
+				}
+			}
+		}
 	}
 
 	private final boolean moveRemote(final RemoteNode node, final RemoteNode destDir)
@@ -1785,6 +2185,10 @@ public class DestTree extends DragDropTree
 	{
 		if (e.getActionCommand().equalsIgnoreCase("Info"))
 			new RemoteFileInfoDialog(f, (RemoteNode) getSelectedNode()).setVisible(true);
+		else if (e.getActionCommand().equalsIgnoreCase("Compare"))
+			compareRemote((RemoteNode) getSelectedNode(),false);
+		else if (e.getActionCommand().equalsIgnoreCase("Deep Compare"))
+			compareRemote((RemoteNode) getSelectedNode(),true);
 		else if (e.getActionCommand().equalsIgnoreCase("Delete"))
 		{
 			if(me.getSelectionModel().getSelectionMode() == TreeSelectionModel.SINGLE_TREE_SELECTION)

@@ -70,7 +70,7 @@ public abstract class DragDropTree extends JTree implements ActionListener, Drop
 				final int row = Integer.parseInt(st);
 				expandRow(row);
 			}
-			catch(Exception e)
+			catch(final Exception e)
 			{}
 		}
 	}
@@ -87,6 +87,7 @@ public abstract class DragDropTree extends JTree implements ActionListener, Drop
 		this.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 		//dt = new DropTarget(this,this);
 		this.setEditable(false);
+		this.setCellRenderer(new FileTreeCellRenderer());
 		this.setTransferHandler(new TransferHandler()
 		{
 			private static final long serialVersionUID = 3136844598684414486L;

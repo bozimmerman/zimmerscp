@@ -23,7 +23,12 @@ public class RemoteNode extends ZCPNode<RemoteNode>
 	private short			w				= 0;
 	private char			fileType		= ' ';
 	private long			timestamp		= 0;
+	private String			cachedHash		= null;
 
+	public void clearHash()
+	{
+		cachedHash = null;
+	}
 	public RemoteNode(final DestTree tree, final SCPConnection conn)
 	{
 		this.conn = conn;
@@ -103,6 +108,20 @@ public class RemoteNode extends ZCPNode<RemoteNode>
 	public String getGroup()
 	{
 		return group;
+	}
+
+	public String getHash()
+	{
+		try
+		{
+			if(cachedHash == null)
+				cachedHash = conn.getFileHash(getFullName());
+			return cachedHash;
+		}
+		catch(final Exception e)
+		{
+			return "";
+		}
 	}
 
 	public char separatorChar() { return '/';}
@@ -187,7 +206,7 @@ public class RemoteNode extends ZCPNode<RemoteNode>
 	{
 		if (!checkedForKids)
 			safeLoadKids();
-		return (Enumeration<TreeNode>)super.children();
+		return super.children();
 	}
 
 	public boolean getAllowsChildren()

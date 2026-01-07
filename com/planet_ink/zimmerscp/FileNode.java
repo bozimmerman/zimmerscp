@@ -56,7 +56,7 @@ public class FileNode extends ZCPNode<FileNode>
 	{
 		if (!checkedForKids)
 			build(f);
-		return (Enumeration<TreeNode>)super.children();
+		return super.children();
 	}
 
 	public boolean getAllowsChildren()
@@ -98,21 +98,29 @@ public class FileNode extends ZCPNode<FileNode>
 
 	public String getFileName()
 	{
+		if(f == null)
+			return "";
 		return f.getName();
 	}
 
 	public long getSize()
 	{
+		if(f == null)
+			return 0;
 		return f.length();
 	}
 
 	public long getTimestamp()
 	{
+		if(f == null)
+			return 0;
 		return f.lastModified();
 	}
 
 	public boolean isDirectory()
 	{
+		if(f==null)
+			return false;
 		if(isDirectory == null)
 			isDirectory = Boolean.valueOf(f.isDirectory());
 		return isDirectory.booleanValue();

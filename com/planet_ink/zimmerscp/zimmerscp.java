@@ -23,7 +23,7 @@ public class zimmerscp extends javax.swing.JFrame implements MouseListener, Wind
 	private static final long serialVersionUID = -2866392485562765792L;
 
 	private static final int	DEFAULT_COL_WIDTH	= 250;
-	private static final double	VERSION				= 2.5;
+	private static final double	VERSION				= 3.0;
 	private SourceTree			jTreeS;
 	private JLabel				jTreeTextS;
 	private JButton				jTreeBSettingsS;
@@ -113,6 +113,11 @@ public class zimmerscp extends javax.swing.JFrame implements MouseListener, Wind
 		return addDestTree(num, cycle[num % cycle.length]);
 	}
 
+	public int numDestTrees()
+	{
+		return destTrees.size();
+	}
+
 	private JPanel addDestTree(final int num, final Color C)
 	{
 		if(this.addPanePanel != null)
@@ -121,21 +126,21 @@ public class zimmerscp extends javax.swing.JFrame implements MouseListener, Wind
 			this.addPanePanel = null;
 		}
 		ImageIcon icon;
-		icon = new ImageIcon(this.getClass().getResource("settingsicon.png"));
+		icon = new ImageIcon(this.getClass().getResource("/icons/settingsicon.png"));
 		final JButton jTreeBSettings = new JButton(icon);
 		jTreeBSettings.setBorderPainted(false);
 		jTreeBSettings.setMaximumSize(new Dimension(18,16));
 		jTreeBSettings.setPreferredSize(new Dimension(18,16));
 		jTreeBSettings.addMouseListener(this);
 		jTreeBSettings.setBackground(C);
-		icon = new ImageIcon(this.getClass().getResource("refreshicon.png"));
+		icon = new ImageIcon(this.getClass().getResource("/icons/refreshicon.png"));
 		final JButton jTreeBRefresh = new JButton(icon);
 		jTreeBRefresh.setBorderPainted(false);
 		jTreeBRefresh.setMaximumSize(new Dimension(18,16));
 		jTreeBRefresh.setPreferredSize(new Dimension(18,16));
 		jTreeBRefresh.addMouseListener(this);
 		jTreeBRefresh.setBackground(C);
-		icon = new ImageIcon(this.getClass().getResource("removeicon.png"));
+		icon = new ImageIcon(this.getClass().getResource("/icons/removeicon.png"));
 		final JButton jTreeBRemove = new JButton(icon);
 		jTreeBRemove.setBorderPainted(false);
 		jTreeBRemove.setMaximumSize(new Dimension(18,16));
@@ -266,14 +271,14 @@ public class zimmerscp extends javax.swing.JFrame implements MouseListener, Wind
 				jTreeTextS.setMinimumSize(new java.awt.Dimension(DEFAULT_COL_WIDTH, 11));
 
 				ImageIcon icon;
-				icon = new ImageIcon(this.getClass().getResource("settingsicon.png"));
+				icon = new ImageIcon(this.getClass().getResource("/icons/settingsicon.png"));
 				jTreeBSettingsS = new JButton(icon);
 				jTreeBSettingsS.setBorderPainted(false);
 				jTreeBSettingsS.setMaximumSize(new Dimension(18,16));
 				jTreeBSettingsS.setPreferredSize(new Dimension(18,16));
 				jTreeBSettingsS.addMouseListener(this);
 				jTreeBSettingsS.setBackground(new Color(255, 255, 140));
-				icon = new ImageIcon(this.getClass().getResource("refreshicon.png"));
+				icon = new ImageIcon(this.getClass().getResource("/icons/refreshicon.png"));
 				jTreeBRefreshS = new JButton(icon);
 				jTreeBRefreshS.setBorderPainted(false);
 				jTreeBRefreshS.setMaximumSize(new Dimension(18,16));
@@ -358,7 +363,7 @@ public class zimmerscp extends javax.swing.JFrame implements MouseListener, Wind
 				};
 				jSettingsListBox.addActionListener(loadAction);
 
-				icon = new ImageIcon(this.getClass().getResource("saveicon.png"));
+				icon = new ImageIcon(this.getClass().getResource("/icons/saveicon.png"));
 				final JButton jAddButton = new JButton(icon);
 				jAddButton.setBorderPainted(false);
 				jAddButton.setMaximumSize(new Dimension(18,16));
@@ -383,7 +388,7 @@ public class zimmerscp extends javax.swing.JFrame implements MouseListener, Wind
 						jSettingsListBox.setSelectedItem(jSettingsTextField.getText());
 					}
 				});
-				icon = new ImageIcon(this.getClass().getResource("deleteicon.png"));
+				icon = new ImageIcon(this.getClass().getResource("/icons/deleteicon.png"));
 				final JButton jDelButton = new JButton(icon);
 				jDelButton.setBorderPainted(false);
 				jDelButton.setMaximumSize(new Dimension(18,16));
@@ -421,7 +426,7 @@ public class zimmerscp extends javax.swing.JFrame implements MouseListener, Wind
 				jSettingsPanel.add(rowTwo);
 
 
-				icon = new ImageIcon(this.getClass().getResource("addicon.png"));
+				icon = new ImageIcon(this.getClass().getResource("/icons/addicon.png"));
 				addPaneButton = new JButton(icon);
 				addPaneButton.setBorderPainted(false);
 				addPaneButton.setMaximumSize(new Dimension(18,16));

@@ -42,7 +42,7 @@ public class SCPConnection
 		return knownHostsFile;
 	}
 
-	public SCPConnection(final String myHost, final String myKnownHostsFile, final String myUser, final String myPassword, int sshdPort)
+	public SCPConnection(final String myHost, final String myKnownHostsFile, final String myUser, final String myPassword, final int sshdPort)
 	{
 		host = myHost;
 		user = myUser;
@@ -407,7 +407,7 @@ public class SCPConnection
 		final Channel channel = openSession("exec");
 		if(channel == null)
 			return null;
-		System.err.println(command);
+		System.out.println(command);
 		((ChannelExec) channel).setCommand(command);
 		return channel;
 	}
@@ -685,6 +685,36 @@ public class SCPConnection
 				ee.printStackTrace();
 			}
 		}
+	}
+
+	public String getFileHash(final String remoteFilePath) throws Exception
+	{
+		connect();
+		final String command = "cksum '" + remoteFilePath + "'";
+		final Channel channel = openCommand(command);
+		if(channel == null)
+			throw new Exception("Unable to open command channel");
+
+		channel.setInputStream(null);
+		final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		channel.setOutputStream(baos);
+
+		channel.connect();
+		while(!channel.isClosed())
+		{
+			try { Thread.sleep(100); } catch(final Exception e) {}
+		}
+		channel.disconnect();
+
+		String output = baos.toString().trim();
+		if(output.length() == 0)
+			throw new Exception("No hash output received");
+
+		final int spaceIndex = output.indexOf(' ');
+		if(spaceIndex > 0)
+			output = output.substring(0, spaceIndex);
+		System.out.println("Result: "+output);
+		return output;
 	}
 
 	/**
